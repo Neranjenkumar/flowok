@@ -14,6 +14,7 @@ app.use(cors());
 
 // Routes
 readdirSync('./routes').map((route) => app.use('/api/v1', require('./routes/' + route)));
+app.use('/api/v1/auth', require('./routes/auth')); // Load auth routes
 
 // Start server function
 const server = async () => {
