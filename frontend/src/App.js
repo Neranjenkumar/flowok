@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import styled from 'styled-components';
 import bg from './img/bg.png';
 import { MainLayout } from './styles/Layouts';
@@ -18,44 +19,38 @@ function App() {
   const global = useGlobalContext();
   console.log(global);
 
-  const displayData = () => {
-    switch (active) {
-      case 1:
-        return <Dashboard />;
-      case 2:
-        return <Dashboard />;
-      case 3:
-        return <Income />;
-      case 4:
-        return <Expenses />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   const orbMemo = useMemo(() => {
     return <Orb />;
   }, []);
 
   return (
-    <AppStyled bg={bg} className="App">
-      {orbMemo}
-      <MainLayout>
-        {!token ? (
-          <>
-            <Login setToken={setToken} />
-            <Register />
-          </>
-        ) : (
-          <>
-            <Navigation active={active} setActive={setActive} setToken={setToken} />
-            <main>
-              {displayData()}
-            </main>
-          </>
-        )}
-      </MainLayout>
-    </AppStyled>
+    <Router>
+      <AppStyled bg={bg} className="App">
+        {orbMemo}
+        <MainLayout>
+          <Routes>
+            <Route path="/login" element={<Login setToken={setToken} />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/login" />} />
+            <Route path="/income" element={token ? <Income /> : <Navigate to="/login" />} />
+            <Route path="/expenses" element={token ? <Expenses /> : <Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
+          </Routes>
+          {token && (
+            <>
+              <Navigation active={active} setActive={setActive} setToken={setToken} />
+              <main>
+                <Routes>
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/income" element={<Income />} />
+                  <Route path="/expenses" element={<Expenses />} />
+                </Routes>
+              </main>
+            </>
+          )}
+        </MainLayout>
+      </AppStyled>
+    </Router>
   );
 }
 
