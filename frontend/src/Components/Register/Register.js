@@ -5,17 +5,20 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [message, setMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/v1/auth/register', {
+      const response = await axios.post('http://localhost:5000/api/v1/auth/register', {
         username,
         password,
         isAdmin,
       });
-      console.log('User registered successfully');
+      setMessage('User registered successfully');
+      console.log(response.data);
     } catch (error) {
+      setMessage('Error registering user');
       console.error('Error registering user', error);
     }
   };
@@ -50,6 +53,7 @@ const Register = () => {
         </div>
         <button type="submit">Register</button>
       </form>
+      {message && <p>{message}</p>}
     </div>
   );
 };

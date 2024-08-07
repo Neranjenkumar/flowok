@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = ({ setToken }) => {
   const [username, setUsername] = useState('');
@@ -17,7 +17,6 @@ const Login = ({ setToken }) => {
       setToken(response.data.token);
       console.log('Login successful', response.data);
       navigate('/dashboard'); 
-      
     } catch (error) {
       console.error('Error logging in', error);
     }
@@ -45,6 +44,7 @@ const Login = ({ setToken }) => {
         </div>
         <button type="submit">Login</button>
       </form>
+      <p>Don't have an account? <Link to="/register">Register here</Link></p>
     </div>
   );
 };
