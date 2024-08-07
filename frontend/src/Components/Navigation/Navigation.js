@@ -31,10 +31,32 @@ const Navigation = ({ active, setActive, setToken }) => {
 const NavStyled = styled.nav`
   ul {
     list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: space-around;
+    }
+
     li {
       cursor: pointer;
+      padding: 1rem;
+      margin: 0.5rem 0;
+      text-align: center;
+
+      @media (min-width: 768px) {
+        margin: 0 0.5rem;
+      }
+
       &.active {
         color: red;
+      }
+
+      &:hover {
+        color: var(--primary-color);
       }
     }
   }

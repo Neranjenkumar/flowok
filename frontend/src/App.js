@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import styled from 'styled-components';
-import bg from './img/bg.png';
 import { MainLayout } from './styles/Layouts';
 import Orb from './Components/Orb/Orb';
 import Navigation from './Components/Navigation/Navigation';
@@ -25,7 +24,7 @@ function App() {
 
   return (
     <Router>
-      <AppStyled bg={bg} className="App">
+      <AppStyled>
         {orbMemo}
         <MainLayout>
           <Routes>
@@ -39,13 +38,13 @@ function App() {
           {token && (
             <>
               <Navigation active={active} setActive={setActive} setToken={setToken} />
-              <main>
+              <MainContent>
                 <Routes>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/income" element={<Income />} />
                   <Route path="/expenses" element={<Expenses />} />
                 </Routes>
-              </main>
+              </MainContent>
             </>
           )}
         </MainLayout>
@@ -56,8 +55,15 @@ function App() {
 
 const AppStyled = styled.div`
   height: 100vh;
-  background-image: url(${props => props.bg});
   position: relative;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #F56692 0%, #F2994A 100%);
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+
   main {
     flex: 1;
     background: rgba(252, 246, 249, 0.78);
@@ -65,9 +71,33 @@ const AppStyled = styled.div`
     backdrop-filter: blur(4.5px);
     border-radius: 32px;
     overflow-x: hidden;
-    &::-webkit-scrollbar {
-      width: 0;
+    padding: 1rem;
+    margin: 1rem;
+
+    @media (min-width: 768px) {
+      padding: 2rem;
+      margin: 2rem;
     }
+  }
+`;
+
+const MainContent = styled.main`
+  flex: 1;
+  background: rgba(252, 246, 249, 0.78);
+  border: 3px solid #FFFFFF;
+  backdrop-filter: blur(4.5px);
+  border-radius: 32px;
+  overflow-x: hidden;
+  padding: 1rem;
+  margin: 1rem;
+
+  @media (min-width: 768px) {
+    padding: 2rem;
+    margin: 2rem;
+  }
+
+  &::-webkit-scrollbar {
+    width: 0;
   }
 `;
 
