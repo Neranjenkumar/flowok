@@ -4,7 +4,7 @@ import History from '../../History/History';
 import { InnerLayout } from '../../styles/Layouts';
 import { dollar } from '../../utils/Icons';
 import Chart from '../Chart/Chart';
-import './Dashboard.css'; // Import the CSS file
+import './Dashboard.css';
 
 function Dashboard() {
     const { totalExpenses, incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext();

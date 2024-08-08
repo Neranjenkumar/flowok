@@ -18,10 +18,9 @@ const Navigation = ({ active, setActive, setToken }) => {
   return (
     <NavStyled>
       <ul>
-        <li className={active === 1 ? 'active' : ''} onClick={() => handleNavigation(1, '/dashboard')}>Dashboard</li>
-        <li className={active === 2 ? 'active' : ''} onClick={() => handleNavigation(2, '/dashboard')}>Dashboard</li>
-        <li className={active === 3 ? 'active' : ''} onClick={() => handleNavigation(3, '/income')}>Income</li>
-        <li className={active === 4 ? 'active' : ''} onClick={() => handleNavigation(4, '/expenses')}>Expenses</li>
+        <li className={active === 1 ? 'active' : ''} onClick={() => handleNavigation(2, '/dashboard')}>Dashboard</li>
+        <li className={active === 2 ? 'active' : ''} onClick={() => handleNavigation(3, '/income')}>Income</li>
+        <li className={active === 3 ? 'active' : ''} onClick={() => handleNavigation(4, '/expenses')}>Expenses</li>
         <li onClick={handleLogout}>Logout</li>
       </ul>
     </NavStyled>
