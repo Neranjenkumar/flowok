@@ -1,5 +1,5 @@
-import React from 'react'
-import styled from 'styled-components'
+import React from 'react';
+import styled from 'styled-components';
 import { dateFormat } from '../../utils/dateFormat';
 import { bitcoin, book, calender, card, circle, clothing, comment, dollar, food, freelance, medical, money, piggy, stocks, takeaway, trash, tv, users, yt } from '../../utils/Icons';
 import Button from '../Button/Button';
@@ -15,13 +15,12 @@ function IncomeItem({
     indicatorColor,
     type
 }) {
-
-    const categoryIcon = () =>{
+    const categoryIcon = () => {
         switch(category) {
             case 'salary':
                 return money;
             case 'freelancing':
-                return freelance
+                return freelance;
             case 'investments':
                 return stocks;
             case 'stocks':
@@ -35,9 +34,9 @@ function IncomeItem({
             case 'other':
                 return piggy;
             default:
-                return ''
+                return circle;  // Return a default icon like 'circle' instead of an empty string
         }
-    }
+    };
 
     const expenseCatIcon = () => {
         switch (category) {
@@ -58,11 +57,9 @@ function IncomeItem({
             case 'other':
                 return circle;
             default:
-                return ''
+                return circle;  // Return a default icon like 'circle' instead of an empty string
         }
-    }
-
-    console.log('type', type)
+    };
 
     return (
         <IncomeItemStyled indicator={indicatorColor}>
@@ -95,7 +92,7 @@ function IncomeItem({
                 </div>
             </div>
         </IncomeItemStyled>
-    )
+    );
 }
 
 const IncomeItemStyled = styled.div`
@@ -166,4 +163,4 @@ const IncomeItemStyled = styled.div`
     }
 `;
 
-export default IncomeItem
+export default IncomeItem;
