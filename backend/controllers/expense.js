@@ -16,6 +16,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage }).single('file');
 
+// Add Expense
 exports.addExpense = (req, res) => {
     upload(req, res, async (err) => {
         if (err) {
