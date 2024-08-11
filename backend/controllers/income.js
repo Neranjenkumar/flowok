@@ -3,9 +3,12 @@ const IncomeSchema = require("../models/IncomeModel");
 exports.addIncome = async (req, res) => {
     const { title, amount, category, description, date } = req.body;
 
+    // Convert amount to a number
+    const parsedAmount = parseFloat(amount);
+
     const income = new IncomeSchema({
         title,
-        amount,
+        amount: parsedAmount,
         category,
         description,
         date
@@ -16,7 +19,7 @@ exports.addIncome = async (req, res) => {
         if (!title || !category || !description || !date) {
             return res.status(400).json({ message: 'All fields are required!' });
         }
-        if (amount <= 0 || typeof amount !== 'number') {
+        if (isNaN(parsedAmount) || parsedAmount <= 0) {
             return res.status(400).json({ message: 'Amount must be a positive number!' });
         }
         await income.save();
@@ -27,6 +30,7 @@ exports.addIncome = async (req, res) => {
 
     console.log(income);
 };
+
 
 exports.getIncomes = async (req, res) => {
     try {
