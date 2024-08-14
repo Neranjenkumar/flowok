@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 function Navigation({ setSidebarOpen }) {
   const [sidebar, setSidebar] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const showSidebar = () => {
     setSidebar(!sidebar);
     setSidebarOpen(!sidebar);
   };
+
+
 
   const sidebarData = [
     {
@@ -33,11 +37,16 @@ function Navigation({ setSidebarOpen }) {
     },
     {
       title: 'Logout',
-      path: '/logout',
+      path: '/login',
       icon: <AiIcons.AiOutlineLogout />,
       cName: 'nav-text',
     },
   ];
+
+  // Conditionally render Navigation based on current path
+  if (location.pathname === '/login') {
+    return null;
+  }
 
   return (
     <NavStyled>
@@ -55,7 +64,7 @@ function Navigation({ setSidebarOpen }) {
           </li>
           {sidebarData.map((item, index) => (
             <li key={index} className={item.cName}>
-              <Link to={item.path}>
+              <Link to={item.path} onClick={item.onClick || showSidebar}>
                 {item.icon}
                 <span>{item.title}</span>
               </Link>
