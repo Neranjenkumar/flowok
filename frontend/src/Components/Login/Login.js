@@ -3,48 +3,80 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
 const Login = ({ setToken }) => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const navigate = useNavigate();  // Use navigate for redirection
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/auth/login', {
-        username,
+      const response = await axios.post('http://localhost:5000/api/v1/auth/login-user', {
+        email,
         password,
       });
-      setToken(response.data.token);
-      console.log('Login successful', response.data);
-      navigate('/dashboard'); 
+
+      if (response.data.status === 'ok') {
+        const { token, userType } = response.data;
+        console.log('Login successful', response.data);
+        alert('Login successful');
+        window.localStorage.setItem('token', token);
+        window.localStorage.setItem('userType', userType);
+        window.localStorage.setItem('loggedIn', true);
+
+        setToken(token);  // Set the token in the state
+
+        // Redirect to dashboard after successful login
+        navigate('/dashboard');
+      } else {
+        alert('Login failed: ' + response.data.error);
+      }
     } catch (error) {
       console.error('Error logging in', error);
+      alert('Login failed: ' + error.message);
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
-      <p>Don't have an account? <Link to="/register">Register here</Link></p>
+    <div className="auth-wrapper">
+      <div className="auth-inner">
+        <form onSubmit={handleSubmit}>
+          <h3>Login</h3>
+
+          <div className="mb-3">
+            <label>Email address</label>
+            <input
+              type="email"
+              className="form-control"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div className="mb-3">
+            <label>Password</label>
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          <div className="d-grid">
+            <button type="submit" className="btn btn-primary">
+              Submit
+            </button>
+          </div>
+          <p className="forgot-password text-right">
+            <Link to="/forgot-password">Forgot Password?</Link>
+          </p>
+          <p className="forgot-password text-right">
+            <Link to="/register">Register</Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

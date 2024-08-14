@@ -6,6 +6,7 @@ export const MainLayout = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  transition: margin-left 0.3s ease;
 
   @media (min-width: 768px) {
     flex-direction: row;
@@ -14,6 +15,10 @@ export const MainLayout = styled.div`
   @media (max-width: 768px) {
     padding: 1rem;
     gap: 1rem;
+  }
+
+  &.nav-open {
+    margin-left: 250px; /* Adjust this value based on your navbar width */
   }
 `;
 

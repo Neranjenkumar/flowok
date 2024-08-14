@@ -21,6 +21,7 @@ function Orb() {
     width: 70vh;
     height: 70vh;
     position: absolute;
+    z-index: -1;  // Moves the orb behind other content
     border-radius: 50%;
     margin-left: -35vh;
     margin-top: -35vh;

@@ -1,40 +1,39 @@
-import React, { useState } from 'react'
-import styled from 'styled-components'
-import DatePicker from 'react-datepicker'
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useGlobalContext } from '../../context/globalContext';
 import Button from '../Button/Button';
 import { plus } from '../../utils/Icons';
 
-
 function Form() {
-    const {addIncome, getIncomes, error, setError} = useGlobalContext()
+    const { addIncome, getIncomes, error, setError } = useGlobalContext();
     const [inputState, setInputState] = useState({
         title: '',
         amount: '',
         date: '',
         category: '',
         description: '',
-    })
+    });
 
-    const { title, amount, date, category,description } = inputState;
+    const { title, amount, date, category, description } = inputState;
 
     const handleInput = name => e => {
-        setInputState({...inputState, [name]: e.target.value})
-        setError('')
-    }
+        setInputState({ ...inputState, [name]: e.target.value });
+        setError('');
+    };
 
     const handleSubmit = e => {
-        e.preventDefault()
-        addIncome(inputState)
+        e.preventDefault();
+        addIncome(inputState);
         setInputState({
             title: '',
             amount: '',
             date: '',
             category: '',
             description: '',
-        })
-    }
+        });
+    };
 
     return (
         <FormStyled onSubmit={handleSubmit}>
@@ -63,7 +62,7 @@ function Form() {
                     selected={date}
                     dateFormat="dd/MM/yyyy"
                     onChange={(date) => {
-                        setInputState({...inputState, date: date})
+                        setInputState({ ...inputState, date: date });
                     }}
                 />
             </div>
@@ -97,11 +96,13 @@ function Form() {
     )
 }
 
-
 const FormStyled = styled.form`
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    width: 100%;  
+    padding: 1rem;  
+
     input, textarea, select{
         font-family: inherit;
         font-size: inherit;
@@ -117,31 +118,61 @@ const FormStyled = styled.form`
         &::placeholder{
             color: rgba(34, 34, 96, 0.4);
         }
+        width: 100%;  
     }
+    
     .input-control{
-        input{
-            width: 100%;
-        }
+        width: 100%;
     }
 
     .selects{
         display: flex;
         justify-content: flex-end;
+        width: 100%;  
         select{
             color: rgba(34, 34, 96, 0.4);
             &:focus, &:active{
                 color: rgba(34, 34, 96, 1);
             }
+            width: 100%;  
         }
     }
 
     .submit-btn{
+        display: flex;
+        justify-content: center;
+        width: 100%;
         button{
+            width: 100%;  
             box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
             &:hover{
                 background: var(--color-green) !important;
             }
         }
     }
+
+    @media (max-width: 768px) {
+        padding: 0.5rem;
+        gap: 1rem;
+
+        .submit-btn button {
+            padding: 0.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        padding: 0.5rem;
+        gap: 1rem;
+
+        input, textarea, select {
+            font-size: 0.9rem;
+            padding: 0.4rem;
+        }
+
+        .submit-btn button {
+            padding: 0.6rem;
+        }
+    }
 `;
-export default Form
+
+export default Form;

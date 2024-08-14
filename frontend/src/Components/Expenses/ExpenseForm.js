@@ -84,7 +84,9 @@ function ExpenseForm() {
         if (file) {
             formData.append('file', file);
         }
-        addExpense(formData);
+        await addExpense(formData);
+
+        // Reset all inputs except the file input
         setInputState({
             title: '',
             amount: '',
@@ -92,7 +94,12 @@ function ExpenseForm() {
             category: '',
             description: '',
         });
-        setFile(null);
+
+        // Optionally, you can keep the file input if needed for the next expense entry.
+        // Uncomment the line below if you want to clear the file input too.
+         setFile(null);
+         document.querySelector('input[type="file"]').value = null;
+
     };
 
     return (
@@ -108,7 +115,8 @@ function ExpenseForm() {
                 />
             </div>
             <div className="input-control">
-                <input value={amount}  
+                <input 
+                    value={amount}  
                     type="text" 
                     name={'amount'} 
                     placeholder={'Expense Amount'}
@@ -140,7 +148,15 @@ function ExpenseForm() {
                 </select>
             </div>
             <div className="input-control">
-                <textarea name="description" value={description} placeholder='Add A Reference' id="description" cols="30" rows="4" onChange={handleInput('description')}></textarea>
+                <textarea 
+                    name="description" 
+                    value={description} 
+                    placeholder='Add A Reference' 
+                    id="description" 
+                    cols="30" 
+                    rows="4" 
+                    onChange={handleInput('description')}
+                ></textarea>
             </div>
             <div className="input-control">
                 <input type="file" onChange={handleFileChange} />
@@ -156,7 +172,7 @@ function ExpenseForm() {
                 />
             </div>
         </ExpenseFormStyled>
-    )
+    );
 }
 
 export default ExpenseForm;

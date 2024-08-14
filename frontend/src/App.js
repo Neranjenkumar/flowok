@@ -11,8 +11,8 @@ import Login from './Components/Login/Login';
 import Register from './Components/Register/Register';
 
 function App() {
-  const [active, setActive] = useState(1);
   const [token, setToken] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const orbMemo = useMemo(() => <Orb />, []);
 
@@ -20,9 +20,9 @@ function App() {
     <Router>
       <AppStyled>
         {orbMemo}
-        <MainLayout>
-          {token && <Navigation active={active} setActive={setActive} setToken={setToken} />}
-          <MainContent>
+        <MainLayout className={sidebarOpen ? 'nav-open' : ''}>
+          {token && <Navigation setSidebarOpen={setSidebarOpen} />}
+          <MainContent sidebarOpen={sidebarOpen}>
             <Routes>
               <Route path="/login" element={<Login setToken={setToken} />} />
               <Route path="/register" element={<Register />} />
@@ -40,7 +40,6 @@ function App() {
 
 const AppStyled = styled.div`
   height: 100vh;
-  position: relative;
   display: flex;
   flex-direction: column;
   background: linear-gradient(180deg, #F56692 0%, #F2994A 100%);
@@ -60,13 +59,27 @@ const MainContent = styled.main`
   padding: 1rem;
   margin: 1rem;
 
+  // Ensure it starts after the navbar height
+  margin-top: 100px; /* Increase margin-top to avoid overlapping with navbar */
+  
+  // Adjust for the sidebar
+  margin-left: ${({ sidebarOpen }) => (sidebarOpen ? '250px' : '0')};
+  transition: margin-left 350ms ease;
+  
+
   @media (min-width: 768px) {
     padding: 2rem;
     margin: 2rem;
+    margin-top: 100px; /* Adjust for larger screens */
   }
 
   &::-webkit-scrollbar {
     width: 0;
+  }
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    margin-top: 120px; /* Slightly increase the margin-top for smaller screens */
   }
 `;
 

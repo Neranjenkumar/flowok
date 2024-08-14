@@ -1,42 +1,38 @@
 import { createGlobalStyle } from 'styled-components';
 
-export const GlobalStyle = createGlobalStyle`
+const GlobalStyles = createGlobalStyle`
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    list-style: none;
-  }
-
-  :root {
-    --primary-color: #222260;
-    --color-green: #42AD00;
-    --color-grey: #aaa;
-    --color-accent: #F56692;
-    --color-delete: #FF0000;
   }
 
   body {
-    font-family: 'Nunito', sans-serif;
-    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
     overflow-x: hidden;
-    color: rgba(34, 34, 96, .6);
-    background: linear-gradient(180deg, #F56692 0%, #F2994A 100%);
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--primary-color);
-  }
-
-  .error {
-    color: red;
-    animation: shake 0.5s ease-in-out;
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(10px); }
-      50% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
-      100% { transform: translateX(0); }
+  @media (max-width: 768px) {
+    body {
+      font-size: 14px;
     }
   }
+
+  @media (min-width: 769px) {
+    body {
+      font-size: 16px;
+    }
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
 `;
+
+export default GlobalStyles;

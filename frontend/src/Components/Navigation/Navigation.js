@@ -1,62 +1,167 @@
-import React from 'react';
+import React, { useState } from 'react';
+import * as FaIcons from 'react-icons/fa';
+import * as AiIcons from 'react-icons/ai';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 
-const Navigation = ({ active, setActive, setToken }) => {
-  const navigate = useNavigate();
+function Navigation({ setSidebarOpen }) {
+  const [sidebar, setSidebar] = useState(false);
 
-  const handleNavigation = (index, path) => {
-    setActive(index);
-    navigate(path);
+  const showSidebar = () => {
+    setSidebar(!sidebar);
+    setSidebarOpen(!sidebar);
   };
 
-  const handleLogout = () => {
-    setToken('');
-    navigate('/login');
-  };
+  const sidebarData = [
+    {
+      title: 'Dashboard',
+      path: '/dashboard',
+      icon: <AiIcons.AiFillHome />,
+      cName: 'nav-text',
+    },
+    {
+      title: 'Income',
+      path: '/income',
+      icon: <FaIcons.FaCartPlus />,
+      cName: 'nav-text',
+    },
+    {
+      title: 'Expenses',
+      path: '/expenses',
+      icon: <AiIcons.AiFillCreditCard />,
+      cName: 'nav-text',
+    },
+    {
+      title: 'Logout',
+      path: '/logout',
+      icon: <AiIcons.AiOutlineLogout />,
+      cName: 'nav-text',
+    },
+  ];
 
   return (
     <NavStyled>
-      <ul>
-        <li className={active === 1 ? 'active' : ''} onClick={() => handleNavigation(2, '/dashboard')}>Dashboard</li>
-        <li className={active === 2 ? 'active' : ''} onClick={() => handleNavigation(3, '/income')}>Income</li>
-        <li className={active === 3 ? 'active' : ''} onClick={() => handleNavigation(4, '/expenses')}>Expenses</li>
-        <li onClick={handleLogout}>Logout</li>
-      </ul>
+      <div className="navbar">
+        <Link to="#" className="menu-bars">
+          <FaIcons.FaBars onClick={showSidebar} />
+        </Link>
+      </div>
+      <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
+        <ul className="nav-menu-items" onClick={showSidebar}>
+          <li className="navbar-toggle">
+            <Link to="#" className="menu-bars">
+              <AiIcons.AiOutlineClose />
+            </Link>
+          </li>
+          {sidebarData.map((item, index) => (
+            <li key={index} className={item.cName}>
+              <Link to={item.path}>
+                {item.icon}
+                <span>{item.title}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </NavStyled>
   );
-};
+}
 
-const NavStyled = styled.nav`
-  ul {
-    list-style: none;
-    padding: 0;
+const NavStyled = styled.div`
+  .navbar {
+    background-color: #060b26;
+    height: 80px;
     display: flex;
-    flex-direction: column;
+    justify-content: start;
     align-items: center;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+  }
 
-    @media (min-width: 768px) {
-      flex-direction: row;
-      justify-content: space-around;
+  .menu-bars {
+    margin-left: 2rem;
+    font-size: 2rem;
+    background: none;
+  }
+
+  .nav-menu {
+    background-color: #060b26;
+    width: 250px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    position: fixed;
+    top: 80px;
+    left: -100%;
+    transition: 350ms;
+    z-index: 1001;
+  }
+
+  .nav-menu.active {
+    left: 0;
+    transition: 350ms;
+  }
+
+  .nav-text {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    padding: 8px 0px 8px 16px;
+    list-style: none;
+    height: 60px;
+  }
+
+  .nav-text a {
+    text-decoration: none;
+    color: #f5f5f5;
+    font-size: 18px;
+    width: 95%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-radius: 4px;
+  }
+
+  .nav-text a:hover {
+    background-color: #1a83ff;
+  }
+
+  .nav-menu-items {
+    width: 100%;
+  }
+
+  .navbar-toggle {
+    background-color: #060b26;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+  }
+
+  span {
+    margin-left: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .nav-menu {
+      width: 100%;
+      height: auto;
+      top: 80px;
     }
 
-    li {
-      cursor: pointer;
-      padding: 1rem;
-      margin: 0.5rem 0;
+    .nav-text {
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .nav-text a {
       text-align: center;
-
-      @media (min-width: 768px) {
-        margin: 0 0.5rem;
-      }
-
-      &.active {
-        color: red;
-      }
-
-      &:hover {
-        color: var(--primary-color);
-      }
+      padding: 20px;
     }
   }
 `;
