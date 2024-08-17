@@ -14,7 +14,6 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Handle token storage in localStorage
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
@@ -66,9 +65,7 @@ const MainContent = styled.main`
   overflow-x: hidden;
   padding: 1rem;
   margin: 1rem;
-
   margin-top: 100px;
-
   margin-left: ${({ sidebarOpen }) => (sidebarOpen ? '250px' : '0')};
   transition: margin-left 350ms ease;
 
