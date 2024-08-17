@@ -49,7 +49,7 @@ function Navigation({ token, setSidebarOpen }) {
   ];
 
   // Conditionally render Navigation based on current path
-  if (location.pathname === '/login') {
+  if (location.pathname === '/login' || location.pathname === '/register') {
     return null;
   }
 
