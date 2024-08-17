@@ -1,13 +1,9 @@
-require('dotenv').config();
-console.log('Environment Variables Loaded:');
-console.log('JWT Secret:', process.env.JWT_SECRET);
- // Load environment variables from .env file
+require('dotenv').config(); // Load environment variables from .env file
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+const User = require('./models/User');
 
 const app = express();
 
@@ -29,54 +25,22 @@ mongoose.connect(process.env.MONGO_URL, {
   console.log('Connected to database');
 }).catch((e) => console.log(e));
 
-// Define User Schema
-const userSchema = new mongoose.Schema({
-  fname: String,
-  lname: String,
-  email: { type: String, unique: true },
-  password: String,
-  userType: String,
-}, { collection: 'UserInfo' });
-
-const User = mongoose.model('User', userSchema);
-
-const imageSchema = new mongoose.Schema({
-  image: String,
-}, { collection: 'ImageDetails' });
-
-const Images = mongoose.model('Images', imageSchema);
-
-// JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET;
-
-// Middleware to verify token
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) return res.status(401).json({ message: 'No token provided' });
-
-  try {
-    const verified = jwt.verify(token, JWT_SECRET);
-    req.user = verified;
-    next();
-  } catch (err) {
-    res.status(403).json({ message: 'Invalid token' });
-  }
-};
-
-// Registration Endpoint
-app.post('/register', async (req, res) => {
+// Registration Endpoint (No Authentication Required)
+app.post('/api/v1/auth/register', async (req, res) => {
   const { fname, lname, email, password, userType } = req.body;
+
   if (!fname || !lname || !email || !password || !userType) {
     return res.status(400).json({ error: 'All fields are required' });
   }
-  const encryptedPassword = await bcrypt.hash(password, 10);
+
   try {
+    const encryptedPassword = await bcrypt.hash(password, 10);
     const oldUser = await User.findOne({ email });
+
     if (oldUser) {
       return res.status(400).json({ error: 'User already exists' });
     }
+
     await User.create({
       fname,
       lname,
@@ -84,6 +48,7 @@ app.post('/register', async (req, res) => {
       password: encryptedPassword,
       userType,
     });
+
     res.status(201).json({ status: 'ok' });
   } catch (error) {
     res.status(500).json({ status: 'error', error: error.message });
@@ -93,15 +58,18 @@ app.post('/register', async (req, res) => {
 // Login Endpoint
 app.post('/login-user', async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+
     if (await bcrypt.compare(password, user.password)) {
       const token = jwt.sign({ email: user.email, userType: user.userType }, JWT_SECRET, { expiresIn: '15m' });
       return res.status(200).json({ status: 'ok', data: token, userType: user.userType });
     }
+
     res.status(400).json({ status: 'error', error: 'Invalid Password' });
   } catch (error) {
     res.status(500).json({ status: 'error', error: error.message });
@@ -109,8 +77,9 @@ app.post('/login-user', async (req, res) => {
 });
 
 // User Data Endpoint
-app.post('/userData', authMiddleware, async (req, res) => {
+app.post('/userData', authenticateToken, async (req, res) => {
   const { email } = req.user;
+
   try {
     const data = await User.findOne({ email });
     res.status(200).json({ status: 'ok', data: data });
@@ -122,14 +91,17 @@ app.post('/userData', authMiddleware, async (req, res) => {
 // Forgot Password Endpoint
 app.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
+
   try {
     const oldUser = await User.findOne({ email });
     if (!oldUser) {
       return res.status(404).json({ status: 'error', error: 'User not found' });
     }
+
     const secret = JWT_SECRET + oldUser.password;
     const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, { expiresIn: '5m' });
     const link = `http://localhost:5000/reset-password/${oldUser._id}/${token}`;
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -162,11 +134,13 @@ app.post('/forgot-password', async (req, res) => {
 // Reset Password Endpoints
 app.get('/reset-password/:id/:token', async (req, res) => {
   const { id, token } = req.params;
+
   try {
     const oldUser = await User.findOne({ _id: id });
     if (!oldUser) {
       return res.status(404).json({ status: 'error', error: 'User not found' });
     }
+
     const secret = JWT_SECRET + oldUser.password;
     jwt.verify(token, secret);
     res.status(200).json({ status: 'ok', email: oldUser.email });
@@ -178,15 +152,19 @@ app.get('/reset-password/:id/:token', async (req, res) => {
 app.post('/reset-password/:id/:token', async (req, res) => {
   const { id, token } = req.params;
   const { password } = req.body;
+
   try {
     const oldUser = await User.findOne({ _id: id });
     if (!oldUser) {
       return res.status(404).json({ status: 'error', error: 'User not found' });
     }
+
     const secret = JWT_SECRET + oldUser.password;
     jwt.verify(token, secret);
+
     const encryptedPassword = await bcrypt.hash(password, 10);
     await User.updateOne({ _id: id }, { $set: { password: encryptedPassword } });
+
     res.status(200).json({ status: 'ok' });
   } catch (error) {
     res.status(400).json({ status: 'error', error: 'Something went wrong' });
@@ -197,6 +175,7 @@ app.post('/reset-password/:id/:token', async (req, res) => {
 app.get('/getAllUser', async (req, res) => {
   let query = {};
   const searchData = req.query.search;
+
   if (searchData) {
     query = {
       $or: [
@@ -205,6 +184,7 @@ app.get('/getAllUser', async (req, res) => {
       ],
     };
   }
+
   try {
     const allUser = await User.find(query);
     res.status(200).json({ status: 'ok', data: allUser });
@@ -214,8 +194,9 @@ app.get('/getAllUser', async (req, res) => {
 });
 
 // Delete User
-app.post('/deleteUser', authMiddleware, async (req, res) => {
+app.post('/deleteUser', authenticateToken, async (req, res) => {
   const { userid } = req.body;
+
   try {
     await User.deleteOne({ _id: userid });
     res.status(200).json({ status: 'ok', data: 'User deleted' });
@@ -227,6 +208,7 @@ app.post('/deleteUser', authMiddleware, async (req, res) => {
 // Upload Image
 app.post('/upload-image', async (req, res) => {
   const { base64 } = req.body;
+
   try {
     await Images.create({ image: base64 });
     res.status(201).json({ status: 'ok' });
@@ -275,11 +257,9 @@ app.get('/paginatedUsers', async (req, res) => {
     res.status(500).json({ status: 'error', error: error.message });
   }
 });
-console.log('Provided secretKey:', secretKey);
-console.log('Expected ADMIN_SECRET:', process.env.ADMIN_SECRET);
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

@@ -138,7 +138,7 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
-// Income and Expense Routes
+// Income and Expense Routes (Protected)
 router.post('/add-income', authMiddleware, async (req, res) => {
     const { title, amount, date, category, description } = req.body;
     try {
