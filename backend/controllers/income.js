@@ -1,52 +1,39 @@
-const IncomeSchema = require("../models/IncomeModel");
+const Income = require('../models/IncomeModel');
 
+// Add a new income
 exports.addIncome = async (req, res) => {
-    const { title, amount, category, description, date } = req.body;
-
-    // Convert amount to a number
-    const parsedAmount = parseFloat(amount);
-
-    const income = new IncomeSchema({
-        title,
-        amount: parsedAmount,
-        category,
-        description,
-        date
+  try {
+    const newIncome = new Income({
+      ...req.body,
+      userId: req.user._id // Associate with the logged-in user
     });
-
-    try {
-        // Validations
-        if (!title || !category || !description || !date) {
-            return res.status(400).json({ message: 'All fields are required!' });
-        }
-        if (isNaN(parsedAmount) || parsedAmount <= 0) {
-            return res.status(400).json({ message: 'Amount must be a positive number!' });
-        }
-        await income.save();
-        res.status(200).json({ message: 'Income Added' });
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error' });
-    }
-
-    console.log(income);
+    const savedIncome = await newIncome.save();
+    res.status(201).json(savedIncome);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
 };
 
-
+// Get all incomes for the logged-in user
 exports.getIncomes = async (req, res) => {
-    try {
-        const incomes = await IncomeSchema.find().sort({ createdAt: -1 });
-        res.status(200).json(incomes);
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error' });
-    }
+  try {
+    const incomes = await Income.find({ userId: req.user._id }); // Filter by user
+    res.status(200).json(incomes);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
+// Delete an income by ID
 exports.deleteIncome = async (req, res) => {
-    const { id } = req.params;
-    try {
-        await IncomeSchema.findByIdAndDelete(id);
-        res.status(200).json({ message: 'Income Deleted' });
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error' });
+  const { id } = req.params;
+  try {
+    const income = await Income.findOneAndDelete({ _id: id, userId: req.user._id }); // Filter by user
+    if (!income) {
+      return res.status(404).json({ message: 'Income not found or unauthorized' });
     }
+    res.status(200).json({ message: 'Income Deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
 };

@@ -1,31 +1,35 @@
-require('dotenv').config(); // Ensure this is at the top
+require('dotenv').config();
+console.log('MONGO_URL:', process.env.MONGO_URL);
 
 const express = require('express');
 const cors = require('cors');
-const { db } = require('./db/db');
+const connectDB = require('./db'); // Import the connectDB function
 const { readdirSync } = require('fs');
 const app = express();
 
-const PORT = process.env.PORT || 5000; // Use a default port if not set in .env
+const PORT = process.env.PORT || 5000;
 
-// Middlewares
 app.use(express.json());
 app.use(cors());
 
-// Routes
 readdirSync('./routes').map((route) => app.use('/api/v1', require('./routes/' + route)));
-app.use('/api/v1/auth', require('./routes/auth')); // Load auth routes
+app.use('/api/v1/auth', require('./routes/auth'));
 
-// Start server function
-const server = async () => {
-  try {
-    await db(); // Await the db connection
-    app.listen(PORT, () => {
-      console.log('Listening to port:', PORT);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error.message);
-  }
+
+const startServer = async () => {
+    try {
+        await connectDB(); // Call the connectDB function
+        app.listen(PORT, () => {
+            console.log(`Listening to port: ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error.message);
+    }
 };
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
 
-server();
+
+startServer();
