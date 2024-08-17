@@ -1,11 +1,3 @@
-//import React, { useEffect } from 'react'
-//import styled from 'styled-components'
-//import { useGlobalContext } from '../../context/globalContext';
-//import { InnerLayout } from '../../styles/Layouts';
-//import Form from '../Form/Form';
-//import IncomeItem from '../IncomeItem/IncomeItem';
-//import ExpenseForm from './ExpenseForm';
-
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
@@ -19,7 +11,7 @@ function Expenses() {
 
     useEffect(() => {
         getExpenses();
-    }, []);
+    }, [getExpenses]);
 
     const toggleNav = () => {
         setNavOpen(!navOpen);
@@ -35,23 +27,27 @@ function Expenses() {
                         <ExpenseForm />
                     </div>
                     <div className="expenses">
-                        {expenses.map((expense) => {
-                            const { _id, title, amount, date, category, description, type } = expense;
-                            return (
-                                <IncomeItem
-                                    key={_id}
-                                    id={_id}
-                                    title={title}
-                                    description={description}
-                                    amount={amount}
-                                    date={date}
-                                    type={type}
-                                    category={category}
-                                    indicatorColor="var(--color-red)"
-                                    deleteItem={deleteExpense}
-                                />
-                            );
-                        })}
+                        {expenses.length > 0 ? (
+                            expenses.map((expense) => {
+                                const { _id, title, amount, date, category, description, type } = expense;
+                                return (
+                                    <IncomeItem
+                                        key={_id}
+                                        id={_id}
+                                        title={title}
+                                        description={description}
+                                        amount={amount}
+                                        date={date}
+                                        type={type}
+                                        category={category}
+                                        indicatorColor="var(--color-red)"
+                                        deleteItem={deleteExpense}
+                                    />
+                                );
+                            })
+                        ) : (
+                            <p>No expenses to display.</p>
+                        )}
                     </div>
                 </div>
             </InnerLayout>
@@ -61,6 +57,7 @@ function Expenses() {
 
 const ExpenseStyled = styled.div`
     display: flex;
+    flex-direction: column;
     overflow: auto;
     transition: margin-left 0.3s ease;
 
@@ -89,6 +86,7 @@ const ExpenseStyled = styled.div`
     
     .expense-content {
         display: flex;
+        flex-direction: column;
         gap: 2rem;
         .expenses {
             flex: 1;

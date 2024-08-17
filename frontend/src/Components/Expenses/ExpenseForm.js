@@ -9,47 +9,81 @@ import { plus } from '../../utils/Icons';
 const ExpenseFormStyled = styled.form`
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    input, textarea, select{
+    gap: 1rem; /* Adjust gap to better fit within the container */
+    padding: 1rem; /* Add padding to give some space inside the form */
+    background-color: #fff; /* Ensure the background is white */
+
+    input, textarea, select {
         font-family: inherit;
         font-size: inherit;
         outline: none;
         border: none;
-        padding: .5rem 1rem;
+        padding: 0.5rem 1rem;
         border-radius: 5px;
-        border: 2px solid #fff;
+        border: 2px solid #e0e0e0; /* Lighter border */
         background: transparent;
         resize: none;
-        box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+        box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.05); /* Reduce shadow intensity */
         color: rgba(34, 34, 96, 0.9);
-        &::placeholder{
+        width: 100%; /* Make inputs take full width */
+
+        &::placeholder {
             color: rgba(34, 34, 96, 0.4);
         }
     }
-    .input-control{
-        input{
-            width: 100%;
-        }
+
+    .input-control {
+        width: 100%;
     }
-    .selects{
+
+    .selects {
         display: flex;
-        justify-content: flex-end;
-        select{
-            color: rgba(34, 34, 96, 0.4);
-            &:focus, &:active{
+        justify-content: flex-start; /* Align select box to the left */
+        width: 100%;
+
+        select {
+            width: 100%; /* Ensure select takes full width */
+            color: rgba(34, 34, 96, 0.6); /* Make text color a bit darker */
+            &:focus, &:active {
                 color: rgba(34, 34, 96, 1);
             }
         }
     }
-    .submit-btn{
-        button{
-            box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-            &:hover{
+
+    .submit-btn {
+        display: flex;
+        justify-content: center; /* Center the submit button */
+        width: 100%;
+
+        button {
+            box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.05);
+            padding: 0.8rem 1.6rem;
+            border-radius: 30px;
+            background-color: var(--color-accent);
+            color: #fff;
+            width: 100%; /* Button takes full width on smaller screens */
+            max-width: 200px; /* Button has a maximum width */
+            &:hover {
                 background: var(--color-green) !important;
             }
         }
     }
+
+    @media (max-width: 768px) {
+        /* For smaller screens, ensure everything is centered and full width */
+        .input-control, .selects, .submit-btn {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        input, textarea, select, button {
+            width: 100%;
+        }
+    }
 `;
+
 
 function ExpenseForm() {
     const { addExpense, error, setError } = useGlobalContext();

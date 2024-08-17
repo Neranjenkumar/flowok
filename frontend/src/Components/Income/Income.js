@@ -11,7 +11,7 @@ function Income() {
 
     useEffect(() => {
         getIncomes();
-    }, []);
+    }, [getIncomes]);
 
     const toggleNav = () => {
         setNavOpen(!navOpen);
@@ -27,23 +27,27 @@ function Income() {
                         <Form />
                     </div>
                     <div className="incomes">
-                        {incomes.map((income) => {
-                            const { _id, title, amount, date, category, description, type } = income;
-                            return (
-                                <IncomeItem
-                                    key={_id}
-                                    id={_id}
-                                    title={title}
-                                    description={description}
-                                    amount={amount}
-                                    date={date}
-                                    type={type}
-                                    category={category}
-                                    indicatorColor="var(--color-green)"
-                                    deleteItem={deleteIncome}
-                                />
-                            );
-                        })}
+                        {incomes.length > 0 ? (
+                            incomes.map((income) => {
+                                const { _id, title, amount, date, category, description, type } = income;
+                                return (
+                                    <IncomeItem
+                                        key={_id}
+                                        id={_id}
+                                        title={title}
+                                        description={description}
+                                        amount={amount}
+                                        date={date}
+                                        type={type}
+                                        category={category}
+                                        indicatorColor="var(--color-green)"
+                                        deleteItem={deleteIncome}
+                                    />
+                                );
+                            })
+                        ) : (
+                            <p>No incomes to display.</p>
+                        )}
                     </div>
                 </div>
             </InnerLayout>
@@ -53,6 +57,7 @@ function Income() {
 
 const IncomeStyled = styled.div`
     display: flex;
+    flex-direction: column;
     overflow: auto;
     transition: margin-left 0.3s ease;
 
@@ -81,6 +86,7 @@ const IncomeStyled = styled.div`
     
     .income-content {
         display: flex;
+        flex-direction: column;
         gap: 2rem;
         .incomes {
             flex: 1;

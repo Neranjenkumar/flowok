@@ -28,11 +28,11 @@ const Login = ({ setToken }) => {
         // Redirect to dashboard after successful login
         navigate('/dashboard');
       } else {
-        alert('Login failed: ' + response.data.error);
+        alert('Login failed: ' + response.data.message);
       }
     } catch (error) {
-      console.error('Error logging in', error);
-      alert('Login failed: ' + error.message);
+      console.error('Error logging in', error.response?.data);
+      alert('Login failed: ' + error.response?.data?.message || error.message);
     }
   };
 

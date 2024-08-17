@@ -35,11 +35,11 @@ const Register = () => {
         // Redirect to login page or another page
         navigate('/login');
       } else {
-        setMessage('Something went wrong');
+        setMessage(response.data.message || 'Something went wrong');
       }
     } catch (error) {
       setMessage('Error registering user');
-      console.error('Error registering user', error);
+      console.error('Error registering user', error.response?.data);
     }
   };
 

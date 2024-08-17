@@ -1,4 +1,7 @@
-require('dotenv').config(); // Load environment variables from .env file
+require('dotenv').config();
+console.log('Environment Variables Loaded:');
+console.log('JWT Secret:', process.env.JWT_SECRET);
+ // Load environment variables from .env file
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -7,12 +10,19 @@ const cors = require('cors');
 const nodemailer = require('nodemailer');
 
 const app = express();
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.FRONTEND_URL, // Ensure this matches your frontend URL
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true // Allow cookies if needed
+}));
+
 app.use(express.json());
-app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
@@ -41,16 +51,17 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware to verify token
 const authMiddleware = (req, res, next) => {
-  const token = req.headers['authorization'];
-  if (!token) {
-    return res.status(401).json({ message: 'Access denied' });
-  }
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) return res.status(401).json({ message: 'No token provided' });
+
   try {
     const verified = jwt.verify(token, JWT_SECRET);
     req.user = verified;
     next();
   } catch (err) {
-    res.status(400).json({ message: 'Invalid token' });
+    res.status(403).json({ message: 'Invalid token' });
   }
 };
 
@@ -88,7 +99,7 @@ app.post('/login-user', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     if (await bcrypt.compare(password, user.password)) {
-      const token = jwt.sign({ email: user.email, isAdmin: user.isAdmin }, JWT_SECRET, { expiresIn: '15m' });
+      const token = jwt.sign({ email: user.email, userType: user.userType }, JWT_SECRET, { expiresIn: '15m' });
       return res.status(200).json({ status: 'ok', data: token, userType: user.userType });
     }
     res.status(400).json({ status: 'error', error: 'Invalid Password' });
@@ -122,13 +133,13 @@ app.post('/forgot-password', async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
       },
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_USERNAME,
       to: email,
       subject: 'Password Reset',
       text: link,
@@ -236,20 +247,39 @@ app.get('/get-image', async (req, res) => {
 
 // Paginated Users
 app.get('/paginatedUsers', async (req, res) => {
-  const allUser = await User.find({});
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
+  try {
+    const allUser = await User.find({});
+    const totalUser = allUser.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
 
-  const results = {
-    totalUser: allUser.length,
-    pageCount: Math.ceil(allUser.length / limit),
-  };
+    const results = {
+      totalUser,
+      pageCount: Math.ceil(totalUser / limit),
+    };
 
-  if (endIndex < allUser.length) {
-    results.next = { page: page + 1 };
+    if (endIndex < totalUser) {
+      results.next = { page: page + 1 };
+    }
+
+    if (startIndex > 0) {
+      results.previous = { page: page - 1 };
+    }
+
+    results.users = allUser.slice(startIndex, endIndex);
+    res.status(200).json(results);
+  } catch (error) {
+    res.status(500).json({ status: 'error', error: error.message });
   }
 });
-  results();
+console.log('Provided secretKey:', secretKey);
+console.log('Expected ADMIN_SECRET:', process.env.ADMIN_SECRET);
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

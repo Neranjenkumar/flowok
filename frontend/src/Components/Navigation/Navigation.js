@@ -4,7 +4,7 @@ import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
 import styled from 'styled-components';
 
-function Navigation({ setSidebarOpen }) {
+function Navigation({ token, setSidebarOpen }) {
   const [sidebar, setSidebar] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,7 +14,11 @@ function Navigation({ setSidebarOpen }) {
     setSidebarOpen(!sidebar);
   };
 
-
+  const handleLogout = () => {
+    // Clear the token and navigate to login
+    window.localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   const sidebarData = [
     {
@@ -40,6 +44,7 @@ function Navigation({ setSidebarOpen }) {
       path: '/login',
       icon: <AiIcons.AiOutlineLogout />,
       cName: 'nav-text',
+      onClick: handleLogout, // Set up the logout action
     },
   ];
 
@@ -75,6 +80,7 @@ function Navigation({ setSidebarOpen }) {
     </NavStyled>
   );
 }
+
 
 const NavStyled = styled.div`
   .navbar {

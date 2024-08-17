@@ -8,13 +8,15 @@ import './Dashboard.css';
 import { FaHome, FaUserAlt } from 'react-icons/fa'; // FontAwesome icons
 import { AiFillCaretDown, AiOutlineMenu } from 'react-icons/ai'; // Ant Design icons
 
-function Dashboard() {
+function Dashboard({ token }) {
     const { totalExpenses, incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext();
 
     useEffect(() => {
-        getIncomes();
-        getExpenses();
-    }, [getIncomes, getExpenses]);
+        if (token) {
+            getIncomes(token);
+            getExpenses(token);
+        }
+    }, [token, getIncomes, getExpenses]);
 
     const minIncome = incomes.length > 0 ? Math.min(...incomes.map(item => item.amount)) : 0;
     const maxIncome = incomes.length > 0 ? Math.max(...incomes.map(item => item.amount)) : 0;
@@ -67,5 +69,6 @@ function Dashboard() {
         </div>
     );
 }
+
 
 export default Dashboard;
