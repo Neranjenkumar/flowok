@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 const Login = ({ setToken }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();  // Use navigate for redirection
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,20 +19,22 @@ const Login = ({ setToken }) => {
         const { token, userType } = response.data;
         console.log('Login successful', response.data);
         alert('Login successful');
+        // Store the token and userType in localStorage
         window.localStorage.setItem('token', token);
         window.localStorage.setItem('userType', userType);
-        window.localStorage.setItem('loggedIn', true);
+        window.localStorage.setItem('loggedIn', 'true');
 
-        setToken(token);  // Set the token in the state
+        // Set the token in the parent state
+        setToken(token);
 
-        // Redirect to dashboard after successful login
+        // Redirect to the dashboard after login
         navigate('/dashboard');
       } else {
         alert('Login failed: ' + response.data.message);
       }
     } catch (error) {
       console.error('Error logging in', error.response?.data);
-      alert('Login failed: ' + error.response?.data?.message || error.message);
+      alert('Login failed: ' + (error.response?.data?.message || error.message));
     }
   };
 

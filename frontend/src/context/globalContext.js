@@ -1,7 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:5000/api/v1/";
+const BASE_URL = "http://localhost:5000/api/v1/auth/";
 
 const GlobalContext = React.createContext();
 
@@ -13,14 +13,35 @@ export const GlobalProvider = ({ children }) => {
     // Token state
     const [token, setToken] = useState('');
 
+    useEffect(() => {
+        const savedToken = localStorage.getItem('token');
+        if (savedToken) {
+            setAuthToken(savedToken);
+            console.log('Token retrieved from localStorage:', savedToken); // Debugging line
+        }
+    }, []);
+
     // Set the token
     const setAuthToken = (newToken) => {
         setToken(newToken);
-        // You can also set the token in axios defaults if preferred
         if (newToken) {
+            console.log('Setting token:', newToken); // Debugging line
             axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
         } else {
             delete axios.defaults.headers.common['Authorization'];
+        }
+    };
+
+    // Login function to handle authentication and token storage
+    const login = async (credentials) => {
+        try {
+            const response = await axios.post(`${BASE_URL}auth/login-user`, credentials);
+            const { token } = response.data;
+            console.log('Login successful, received token:', token); // Debugging line
+            setAuthToken(token); // Store the token in global state
+            localStorage.setItem('token', token); // Optionally store it in local storage
+        } catch (err) {
+            setError(err.response?.data?.message || 'An error occurred');
         }
     };
 
@@ -55,9 +76,9 @@ export const GlobalProvider = ({ children }) => {
             setError(err.response?.data?.message || 'An error occurred');
         }
     };
-
-    // Get incomes
+//get income
     const getIncomes = async () => {
+        console.log('Fetching incomes with token:', axios.defaults.headers.common['Authorization']); // Debugging line
         try {
             const response = await axios.get(`${BASE_URL}get-incomes`);
             setIncomes(response.data);
@@ -65,6 +86,7 @@ export const GlobalProvider = ({ children }) => {
             setError(err.response?.data?.message || 'An error occurred');
         }
     };
+
 
     // Delete income
     const deleteIncome = async (id) => {
@@ -78,6 +100,7 @@ export const GlobalProvider = ({ children }) => {
 
     // Add expense
     const addExpense = async (expense) => {
+        console.log('Adding income with token:', axios.defaults.headers.common['Authorization']); // Debugging line
         try {
             await axios.post(`${BASE_URL}add-expense`, expense);
             await getExpenses();
@@ -122,8 +145,9 @@ export const GlobalProvider = ({ children }) => {
             transactionHistory,
             error,
             setError,
-            token, // Add token to context
-            setAuthToken // Provide function to set token
+            token,
+            setAuthToken,
+            login // Export login function
         }}>
             {children}
         </GlobalContext.Provider>

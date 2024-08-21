@@ -1,3 +1,9 @@
+// import React, { useEffect, useState } from 'react';
+// import styled from 'styled-components';
+// import { useGlobalContext } from '../../context/globalContext';
+// import { InnerLayout } from '../../styles/Layouts';
+// import IncomeItem from '../IncomeItem/IncomeItem';
+// import ExpenseForm from './ExpenseForm';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../../context/globalContext';
@@ -10,7 +16,10 @@ function Expenses() {
     const [navOpen, setNavOpen] = useState(false);
 
     useEffect(() => {
-        getExpenses();
+        const token = localStorage.getItem('token');
+        if (token) {
+            getExpenses(token); // Pass the token to fetch user-specific data
+        }
     }, [getExpenses]);
 
     const toggleNav = () => {
@@ -21,10 +30,10 @@ function Expenses() {
         <ExpenseStyled className={navOpen ? 'nav-open' : ''}>
             <InnerLayout>
                 <h1>Expenses</h1>
-                <h2 className="total-expenses">Total Expenses: <span>${totalExpenses()}</span></h2>
+                <h2 className="total-expense">Total Expense: <span>${totalExpenses()}</span></h2>
                 <div className="expense-content">
                     <div className="form-container">
-                        <ExpenseForm />
+                        <ExpenseForm addExpense={addExpense} />
                     </div>
                     <div className="expenses">
                         {expenses.length > 0 ? (
@@ -65,7 +74,7 @@ const ExpenseStyled = styled.div`
         margin-left: 250px;
     }
 
-    .total-expenses {
+    .total-expense {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -98,7 +107,7 @@ const ExpenseStyled = styled.div`
             flex-direction: column;
         }
 
-        .total-expenses {
+        .total-expense {
             font-size: 1.5rem;
             span {
                 font-size: 2rem;
@@ -107,7 +116,7 @@ const ExpenseStyled = styled.div`
     }
 
     @media (max-width: 480px) {
-        .total-expenses {
+        .total-expense {
             font-size: 1.2rem;
             padding: 0.8rem;
             span {

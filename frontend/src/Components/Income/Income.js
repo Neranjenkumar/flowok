@@ -10,7 +10,10 @@ function Income() {
     const [navOpen, setNavOpen] = useState(false);
 
     useEffect(() => {
-        getIncomes();
+        const token = localStorage.getItem('token');
+        if (token) {
+            getIncomes(token); // Pass the token to fetch user-specific data
+        }
     }, [getIncomes]);
 
     const toggleNav = () => {
@@ -24,7 +27,7 @@ function Income() {
                 <h2 className="total-income">Total Income: <span>${totalIncome()}</span></h2>
                 <div className="income-content">
                     <div className="form-container">
-                        <Form />
+                        <Form addIncome={addIncome} />
                     </div>
                     <div className="incomes">
                         {incomes.length > 0 ? (
