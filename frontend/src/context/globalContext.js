@@ -68,39 +68,69 @@ export const GlobalProvider = ({ children }) => {
     };
 
     // Add income
-    const addIncome = async (income) => {
+    const addIncome = async (incomeData, token) => {
         try {
-            await axios.post(`${BASE_URL}add-income`, income);
-            await getIncomes();
-        } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            const response = await fetch('http://localhost:5000/api/v1/income/add-income', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(incomeData)
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            const data = await response.json();
+            setIncomes(prevIncomes => [...prevIncomes, data]);
+        } catch (error) {
+            console.error('Error adding income:', error);
         }
     };
-//get income
-    const getIncomes = async () => {
-        console.log('Fetching incomes with token:', axios.defaults.headers.common['Authorization']); // Debugging line
+
+    //getincome
+    const getIncomes = async (token) => {
         try {
-            const response = await axios.get(`${BASE_URL}get-incomes`);
-            setIncomes(response.data);
-        } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            const response = await fetch('http://localhost:5000/api/v1/income/get-incomes', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            const data = await response.json();
+            setIncomes(data);
+        } catch (error) {
+            console.error('Error fetching incomes:', error);
         }
     };
 
 
     // Delete income
-    const deleteIncome = async (id) => {
+    const deleteIncome = async (id, token) => {
         try {
-            await axios.delete(`${BASE_URL}delete-income/${id}`);
-            await getIncomes();
-        } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            const response = await fetch(`http://localhost:5000/api/v1/income/delete-income/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Network response was not ok.');
+            }
+            setIncomes(prevIncomes => prevIncomes.filter(income => income._id !== id));
+        } catch (error) {
+            console.error('Error deleting income:', error);
         }
     };
 
     // Add expense
     const addExpense = async (expense) => {
-        console.log('Adding income with token:', axios.defaults.headers.common['Authorization']); // Debugging line
+        console.log('Adding income with token:', axios.defaults.headers.common['authorization']); // Debugging line
         try {
             await axios.post(`${BASE_URL}add-expense`, expense);
             await getExpenses();

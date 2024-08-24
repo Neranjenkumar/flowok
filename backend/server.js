@@ -3,7 +3,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 const User = require('./models/User');
+const authMiddleware = require('./middleware/authMiddleware'); // Import the auth middleware
 
 const app = express();
 
@@ -66,7 +69,7 @@ app.post('/login-user', async (req, res) => {
     }
 
     if (await bcrypt.compare(password, user.password)) {
-      const token = jwt.sign({ email: user.email, userType: user.userType }, JWT_SECRET, { expiresIn: '15m' });
+      const token = jwt.sign({ userId: user._id, email: user.email, userType: user.userType }, process.env.JWT_SECRET, { expiresIn: '15m' });
       return res.status(200).json({ status: 'ok', data: token, userType: user.userType });
     }
 
@@ -76,8 +79,8 @@ app.post('/login-user', async (req, res) => {
   }
 });
 
-// User Data Endpoint
-app.post('/userData', authenticateToken, async (req, res) => {
+// User Data Endpoint (Protected)
+app.post('/userData', authMiddleware, async (req, res) => {
   const { email } = req.user;
 
   try {
@@ -98,7 +101,7 @@ app.post('/forgot-password', async (req, res) => {
       return res.status(404).json({ status: 'error', error: 'User not found' });
     }
 
-    const secret = JWT_SECRET + oldUser.password;
+    const secret = process.env.JWT_SECRET + oldUser.password;
     const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, { expiresIn: '5m' });
     const link = `http://localhost:5000/reset-password/${oldUser._id}/${token}`;
 
@@ -141,7 +144,7 @@ app.get('/reset-password/:id/:token', async (req, res) => {
       return res.status(404).json({ status: 'error', error: 'User not found' });
     }
 
-    const secret = JWT_SECRET + oldUser.password;
+    const secret = process.env.JWT_SECRET + oldUser.password;
     jwt.verify(token, secret);
     res.status(200).json({ status: 'ok', email: oldUser.email });
   } catch (error) {
@@ -159,7 +162,7 @@ app.post('/reset-password/:id/:token', async (req, res) => {
       return res.status(404).json({ status: 'error', error: 'User not found' });
     }
 
-    const secret = JWT_SECRET + oldUser.password;
+    const secret = process.env.JWT_SECRET + oldUser.password;
     jwt.verify(token, secret);
 
     const encryptedPassword = await bcrypt.hash(password, 10);
@@ -171,8 +174,8 @@ app.post('/reset-password/:id/:token', async (req, res) => {
   }
 });
 
-// Get All Users with Search
-app.get('/getAllUser', async (req, res) => {
+// Get All Users with Search (Protected)
+app.get('/getAllUser', authMiddleware, async (req, res) => {
   let query = {};
   const searchData = req.query.search;
 
@@ -193,8 +196,8 @@ app.get('/getAllUser', async (req, res) => {
   }
 });
 
-// Delete User
-app.post('/deleteUser', authenticateToken, async (req, res) => {
+// Delete User (Protected)
+app.post('/deleteUser', authMiddleware, async (req, res) => {
   const { userid } = req.body;
 
   try {
@@ -227,8 +230,8 @@ app.get('/get-image', async (req, res) => {
   }
 });
 
-// Paginated Users
-app.get('/paginatedUsers', async (req, res) => {
+// Paginated Users (Protected)
+app.get('/paginatedUsers', authMiddleware, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
 

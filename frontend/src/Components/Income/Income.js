@@ -12,7 +12,10 @@ function Income() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
+            console.log('Fetching incomes with token:', token); // Log token to verify
             getIncomes(token); // Pass the token to fetch user-specific data
+        } else {
+            console.error('No token found in localStorage');
         }
     }, [getIncomes]);
 
