@@ -16,9 +16,10 @@ function Form() {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setUserId(decodedToken.id);
+            setInputState(prevState => ({ ...prevState, userId: decodedToken.id }));
         }
     }, [token]);
-
+    
     // Initialize form state
     const [inputState, setInputState] = useState({
         title: '',
@@ -39,7 +40,7 @@ function Form() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         const income = {
             title,
             amount,
@@ -49,17 +50,15 @@ function Form() {
             userId,  // Ensure userId is included
             type
         };
-
+    
         console.log('Submitting income:', income);  // Log the payload to check
-
+    
         try {
-            const response = await addIncome(income); // Call to the addIncome function in globalContext.js
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
+            const data = await addIncome(income); // Call to the addIncome function in globalContext.js
+            console.log('Income added successfully:', data);
             // Handle success (e.g., clear form, show success message)
         } catch (error) {
-            console.error('Error adding income:', error);
+            console.error('Error adding income:', error.message);
         }
     };
 
@@ -85,13 +84,14 @@ function Form() {
                 />
             </div>
             <div className="input-control">
-                <DatePicker 
-                    id='date'
-                    placeholderText='Enter A Date'
-                    selected={date}
-                    dateFormat="dd/MM/yyyy"
-                    onChange={(date) => setInputState({ ...inputState, date })}
-                />
+            <DatePicker 
+                id='date'
+                placeholderText='Enter A Date'
+                selected={date ? new Date(date) : null}  // Handle the date correctly
+                dateFormat="dd/MM/yyyy"
+                onChange={(date) => setInputState({ ...inputState, date: date.toISOString().split('T')[0] })}
+            />
+
             </div>
             <div className="selects input-control">
                 <select 

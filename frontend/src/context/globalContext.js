@@ -69,24 +69,23 @@ export const GlobalProvider = ({ children }) => {
 
     // Add income
     const addIncome = async (income) => {
-        const token = localStorage.getItem('token');
         try {
-            const response = await fetch('http://localhost:5000/api/v1/income/add-income', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(income)
-            });
-            if (!response.ok) throw new Error('Network response was not ok.');
-            const data = await response.json();
-            // Handle successful response
+            const response = await axios.post(
+                'http://localhost:5000/api/v1/income/add-income',
+                income,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`  // Ensure token is passed here
+                    }
+                }
+            );
+            return response.data;
         } catch (error) {
-            console.error('Error adding income:', error);
-            setError(error.message);
+            console.error('Error adding income:', error.response ? error.response.data : error.message);
+            throw error;  // Rethrow the error to be handled in the component
         }
     };
+
     
     // Get incomes
     const getIncomes = async () => {
