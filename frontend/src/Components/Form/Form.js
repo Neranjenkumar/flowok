@@ -72,7 +72,19 @@ function Form() {
     
         const { title, amount, date, category, description, type } = inputState;
     
-        if (!title || !amount || !date || !category || !description || !type) {
+        // Default type if not provided
+        const incomeType = type || 'income'; // Set a default value if 'type' is empty
+    
+        console.log('Form data before submission:', {
+            title,
+            amount,
+            date,
+            category,
+            description,
+            incomeType // use the updated field
+        });
+    
+        if (!title || !amount || !date || !category || !description || !incomeType) {
             setError('All fields are required');
             return;
         }
@@ -86,7 +98,7 @@ function Form() {
             category,
             description,
             userId,
-            type
+            type: incomeType // use the updated field
         };
     
         try {
@@ -113,7 +125,7 @@ function Form() {
             <div className="input-control">
                 <input
                     value={inputState.amount}
-                    type="text"
+                    type="number"
                     name='amount'
                     placeholder='Salary Amount'
                     onChange={handleInput('amount')}
@@ -124,7 +136,7 @@ function Form() {
                     id='date'
                     placeholderText='Enter A Date'
                     selected={inputState.date}
-                    dateFormat="dd/MM/yyyy"
+                    dateFormat="yyyy/MM/dd"
                     onChange={handleDateChange}
                 />
             </div>
