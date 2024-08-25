@@ -10,10 +10,12 @@ exports.addIncome = async (req, res) => {
         // Log incoming data for debugging
         console.log('Received income data:', { title, amount, date, category, description, type });
 
+        // Check if all required fields are present
         if (!title || !amount || !date || !category || !description || !type) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
+        // Create and save new income document
         const newIncome = new Income({
             title,
             amount,
@@ -21,7 +23,7 @@ exports.addIncome = async (req, res) => {
             category,
             description,
             type,
-            userId: req.user.id
+            userId: req.user.id // Ensure userId is included
         });
 
         await newIncome.save();

@@ -9,96 +9,131 @@ import { plus } from '../../utils/Icons';
 function Form() {
     const { addIncome, getIncomes, error, setError, token } = useGlobalContext();
 
-    // State to store the user ID from the token
     const [userId, setUserId] = useState('');
+    const [inputState, setInputState] = useState({
+        title: '',
+        amount: '',
+        date: new Date(), // Initialize with current date
+        category: '',
+        description: '',
+        type: '' // Ensure this matches the expected value for 'type'
+    });
 
     useEffect(() => {
         if (token) {
             const decodedToken = JSON.parse(atob(token.split('.')[1]));
             setUserId(decodedToken.id);
-            setInputState(prevState => ({ ...prevState, userId: decodedToken.id }));
         }
     }, [token]);
-    
-    // Initialize form state
-    const [inputState, setInputState] = useState({
-        title: '',
-        amount: '',
-        date: '',
-        category: '',
-        description: '',
-        userId: userId,
-        type: ''  // Assuming 'type' is required by the backend
-    });
-
-    const { title, amount, date, category, description, type } = inputState;
 
     const handleInput = name => e => {
         setInputState({ ...inputState, [name]: e.target.value });
         setError('');
     };
 
+    const handleDateChange = (date) => {
+        setInputState({ ...inputState, date });
+    };
+
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+
+    //     // Destructure inputState
+    //     const { title, amount, date, category, description, type } = inputState;
+
+    //     if (!title || !amount || !date || !category || !description || !type) {
+    //         setError('All fields are required');
+    //         return;
+    //     }
+
+    //     // Format the date to ISO string
+    //     const formattedDate = new Date(date).toISOString();
+
+    //     const income = {
+    //         title,
+    //         amount,
+    //         date: formattedDate, // Send formatted date
+    //         category,
+    //         description,
+    //         userId, // Ensure userId is included
+    //         type
+    //     };
+
+    //     try {
+    //         const data = await addIncome(income);
+    //         console.log('Income added successfully:', data);
+    //         // Handle success (e.g., clear form, show success message)
+    //     } catch (error) {
+    //         console.error('Error adding income:', error.message);
+    //     }
+    // };
     const handleSubmit = async (e) => {
         e.preventDefault();
     
+        const { title, amount, date, category, description, type } = inputState;
+    
+        if (!title || !amount || !date || !category || !description || !type) {
+            setError('All fields are required');
+            return;
+        }
+    
+        const formattedDate = new Date(date); // Convert to Date object
+    
         const income = {
             title,
-            amount,
-            date,
+            amount: parseFloat(amount), // Ensure it's a number
+            date: formattedDate,
             category,
             description,
-            userId,  // Ensure userId is included
+            userId,
             type
         };
     
-        console.log('Submitting income:', income);  // Log the payload to check
-    
         try {
-            const data = await addIncome(income); // Call to the addIncome function in globalContext.js
+            const data = await addIncome(income);
             console.log('Income added successfully:', data);
             // Handle success (e.g., clear form, show success message)
         } catch (error) {
             console.error('Error adding income:', error.message);
         }
     };
-
+       
     return (
         <FormStyled onSubmit={handleSubmit}>
             {error && <p className='error'>{error}</p>}
             <div className="input-control">
-                <input 
-                    type="text" 
-                    value={title}
-                    name={'title'} 
+                <input
+                    type="text"
+                    value={inputState.title}
+                    name='title'
                     placeholder="Salary Title"
                     onChange={handleInput('title')}
                 />
             </div>
             <div className="input-control">
-                <input 
-                    value={amount}  
-                    type="text" 
-                    name={'amount'} 
-                    placeholder={'Salary Amount'}
-                    onChange={handleInput('amount')} 
+                <input
+                    value={inputState.amount}
+                    type="text"
+                    name='amount'
+                    placeholder='Salary Amount'
+                    onChange={handleInput('amount')}
                 />
             </div>
             <div className="input-control">
-            <DatePicker 
-                id='date'
-                placeholderText='Enter A Date'
-                selected={date ? new Date(date) : null}  // Handle the date correctly
-                dateFormat="dd/MM/yyyy"
-                onChange={(date) => setInputState({ ...inputState, date: date.toISOString().split('T')[0] })}
-            />
-
+                <DatePicker
+                    id='date'
+                    placeholderText='Enter A Date'
+                    selected={inputState.date}
+                    dateFormat="dd/MM/yyyy"
+                    onChange={handleDateChange}
+                />
             </div>
             <div className="selects input-control">
-                <select 
-                    required 
-                    value={category} 
-                    name="category" 
-                    id="category" 
+                <select
+                    required
+                    value={inputState.category}
+                    name="category"
+                    id="category"
                     onChange={handleInput('category')}
                 >
                     <option value="" disabled>Select Option</option>
@@ -107,24 +142,24 @@ function Form() {
                     <option value="investments">Investments</option>
                     <option value="stocks">Stocks</option>
                     <option value="bitcoin">Bitcoin</option>
-                    <option value="bank">Bank Transfer</option>  
-                    <option value="youtube">YouTube</option>  
-                    <option value="other">Other</option>  
+                    <option value="bank">Bank Transfer</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="other">Other</option>
                 </select>
             </div>
             <div className="input-control">
-                <textarea 
-                    name="description" 
-                    value={description} 
-                    placeholder='Add A Reference' 
-                    id="description" 
-                    cols="30" 
-                    rows="4" 
+                <textarea
+                    name="description"
+                    value={inputState.description}
+                    placeholder='Add A Reference'
+                    id="description"
+                    cols="30"
+                    rows="4"
                     onChange={handleInput('description')}
                 ></textarea>
             </div>
             <div className="submit-btn">
-                <Button 
+                <Button
                     name={'Add Income'}
                     icon={plus}
                     bPad={'.8rem 1.6rem'}
@@ -134,17 +169,17 @@ function Form() {
                 />
             </div>
         </FormStyled>
-    )
+    );
 }
 
 const FormStyled = styled.form`
     display: flex;
     flex-direction: column;
     gap: 2rem;
-    width: 100%;  
-    padding: 1rem;  
+    width: 100%;
+    padding: 1rem;
 
-    input, textarea, select{
+    input, textarea, select {
         font-family: inherit;
         font-size: inherit;
         outline: none;
@@ -156,37 +191,37 @@ const FormStyled = styled.form`
         resize: none;
         box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
         color: rgba(34, 34, 96, 0.9);
-        &::placeholder{
+        &::placeholder {
             color: rgba(34, 34, 96, 0.4);
         }
-        width: 100%;  
-    }
-    
-    .input-control{
         width: 100%;
     }
 
-    .selects{
+    .input-control {
+        width: 100%;
+    }
+
+    .selects {
         display: flex;
         justify-content: flex-end;
-        width: 100%;  
-        select{
+        width: 100%;
+        select {
             color: rgba(34, 34, 96, 0.4);
-            &:focus, &:active{
+            &:focus, &:active {
                 color: rgba(34, 34, 96, 1);
             }
-            width: 100%;  
+            width: 100%;
         }
     }
 
-    .submit-btn{
+    .submit-btn {
         display: flex;
         justify-content: center;
         width: 100%;
-        button{
-            width: 100%;  
+        button {
+            width: 100%;
             box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-            &:hover{
+            &:hover {
                 background: var(--color-green) !important;
             }
         }
