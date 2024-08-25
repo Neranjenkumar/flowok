@@ -15,10 +15,10 @@ app.use(cors());
 // Register route should not have authMiddleware
 app.use('/api/v1/auth', require('./routes/auth'));
 
-// Apply middleware to all routes except /auth/register
+// Apply middleware to all routes except /auth
 readdirSync('./routes').forEach((route) => {
     if (route !== 'auth.js') {
-        app.use('/api/v1', require('./routes/' + route));
+        app.use('/api/v1/income', require('./routes/' + route));
     }
 });
 

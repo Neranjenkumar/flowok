@@ -2,15 +2,18 @@
 const Income = require('../models/IncomeModel'); // Ensure this path is correct
 
 // Add Income
+// controllers/income.js
 exports.addIncome = async (req, res) => {
     try {
-        // Ensure the incoming request has the required data
         const { title, amount, date, category, description, type } = req.body;
+
+        // Log incoming data for debugging
+        console.log('Received income data:', { title, amount, date, category, description, type });
+
         if (!title || !amount || !date || !category || !description || !type) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
-        // Create new income document
         const newIncome = new Income({
             title,
             amount,
@@ -18,10 +21,9 @@ exports.addIncome = async (req, res) => {
             category,
             description,
             type,
-            userId: req.user.id // Assuming `req.user` is set by `authenticateToken`
+            userId: req.user.id
         });
 
-        // Save the document to the database
         await newIncome.save();
         res.status(201).json(newIncome);
     } catch (error) {

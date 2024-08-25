@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:5000/api/v1/auth/";
+const BASE_URL = "http://localhost:5000/api/v1/income/"; // Updated to match your routes
 
 const GlobalContext = React.createContext();
 
@@ -26,16 +26,16 @@ export const GlobalProvider = ({ children }) => {
         setToken(newToken);
         if (newToken) {
             console.log('Setting token:', newToken); // Debugging line
-            axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+            axios.defaults.headers.common['authorization'] = `Bearer ${newToken}`;
         } else {
-            delete axios.defaults.headers.common['Authorization'];
+            delete axios.defaults.headers.common['authorization'];
         }
     };
 
     // Login function to handle authentication and token storage
     const login = async (credentials) => {
         try {
-            const response = await axios.post(`${BASE_URL}auth/login-user`, credentials);
+            const response = await axios.post(`${BASE_URL}auth/login-user`, credentials); // Check your auth route
             const { token } = response.data;
             console.log('Login successful, received token:', token); // Debugging line
             setAuthToken(token); // Store the token in global state
@@ -68,51 +68,49 @@ export const GlobalProvider = ({ children }) => {
     };
 
     // Add income
-    const addIncome = async (incomeData, token) => {
+    const addIncome = async (income) => {
+        const token = localStorage.getItem('token');
         try {
             const response = await fetch('http://localhost:5000/api/v1/income/add-income', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(incomeData)
+                body: JSON.stringify(income)
             });
-            if (!response.ok) {
-                throw new Error('Network response was not ok.');
-            }
+            if (!response.ok) throw new Error('Network response was not ok.');
             const data = await response.json();
-            setIncomes(prevIncomes => [...prevIncomes, data]);
+            // Handle successful response
         } catch (error) {
             console.error('Error adding income:', error);
+            setError(error.message);
         }
     };
-
-    //getincome
-    const getIncomes = async (token) => {
+    
+    // Get incomes
+    const getIncomes = async () => {
+        const token = localStorage.getItem('token');
         try {
             const response = await fetch('http://localhost:5000/api/v1/income/get-incomes', {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+                    'Authorization': `Bearer ${token}`
                 }
             });
-            if (!response.ok) {
-                throw new Error('Network response was not ok.');
-            }
+            if (!response.ok) throw new Error('Network response was not ok.');
             const data = await response.json();
-            setIncomes(data);
+            // Handle successful response
         } catch (error) {
             console.error('Error fetching incomes:', error);
+            setError(error.message);
         }
     };
-
 
     // Delete income
     const deleteIncome = async (id, token) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/income/delete-income/${id}`, {
+            const response = await fetch(`${BASE_URL}delete-income/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -130,7 +128,7 @@ export const GlobalProvider = ({ children }) => {
 
     // Add expense
     const addExpense = async (expense) => {
-        console.log('Adding income with token:', axios.defaults.headers.common['authorization']); // Debugging line
+        console.log('Adding expense with token:', axios.defaults.headers.common['authorization']); // Debugging line
         try {
             await axios.post(`${BASE_URL}add-expense`, expense);
             await getExpenses();
