@@ -39,7 +39,7 @@ export const GlobalProvider = ({ children }) => {
             setAuthToken(token);
             localStorage.setItem('token', token);
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred during login');
+            setError(err.response?.data?.message || 'An error occurred');
         }
     };
 
@@ -59,13 +59,14 @@ export const GlobalProvider = ({ children }) => {
             setIncomes([...incomes, response.data]);
         } catch (error) {
             console.error('Error adding income:', error.response ? error.response.data : error.message);
-            setError(error.message);
+            throw error;
         }
     };
-
     const getIncomes = async () => {
         try {
             console.log('Making GET request to fetch incomes...');
+            console.log('Token being sent:', token);
+            console.log('Authorization header:', axios.defaults.headers.common['Authorization']);
             const response = await axios.get(`${BASE_URL}income/get-incomes`);
             console.log('Received incomes:', response.data);
             setIncomes(response.data);
@@ -74,14 +75,13 @@ export const GlobalProvider = ({ children }) => {
             setError(error.message);
         }
     };
-
+    
     const deleteIncome = async (id) => {
         try {
             await axios.delete(`${BASE_URL}income/delete-income/${id}`);
             setIncomes(prevIncomes => prevIncomes.filter(income => income._id !== id));
         } catch (error) {
             console.error('Error deleting income:', error);
-            setError(error.message);
         }
     };
 
@@ -90,8 +90,7 @@ export const GlobalProvider = ({ children }) => {
             await axios.post(`${BASE_URL}expense/add-expense`, expense);
             await getExpenses();
         } catch (err) {
-            console.error('Error adding expense:', err.response?.data?.message || err.message);
-            setError(err.message);
+            setError(err.response?.data?.message || 'An error occurred');
         }
     };
 
@@ -100,8 +99,7 @@ export const GlobalProvider = ({ children }) => {
             const response = await axios.get(`${BASE_URL}expense/get-expenses`);
             setExpenses(response.data);
         } catch (err) {
-            console.error('Error fetching expenses:', err.response?.data?.message || err.message);
-            setError(err.message);
+            setError(err.response?.data?.message || 'An error occurred');
         }
     };
 
@@ -110,8 +108,7 @@ export const GlobalProvider = ({ children }) => {
             await axios.delete(`${BASE_URL}expense/delete-expense/${id}`);
             await getExpenses();
         } catch (err) {
-            console.error('Error deleting expense:', err.response?.data?.message || err.message);
-            setError(err.message);
+            setError(err.response?.data?.message || 'An error occurred');
         }
     };
 
