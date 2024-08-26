@@ -109,7 +109,7 @@ function Form() {
             console.error('Error adding income:', error.message);
         }
     };
-       
+    
     return (
         <FormStyled onSubmit={handleSubmit}>
             {error && <p className='error'>{error}</p>}
