@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:5000/api/v1/income/"; // Updated to match your routes
+const BASE_URL = "http://localhost:5000/api/v1/";
 
 const GlobalContext = React.createContext();
 
@@ -9,150 +9,109 @@ export const GlobalProvider = ({ children }) => {
     const [incomes, setIncomes] = useState([]);
     const [expenses, setExpenses] = useState([]);
     const [error, setError] = useState(null);
-
-    // Token state
     const [token, setToken] = useState('');
 
     useEffect(() => {
         const savedToken = localStorage.getItem('token');
         if (savedToken) {
             setAuthToken(savedToken);
-            console.log('Token retrieved from localStorage:', savedToken); // Debugging line
+            console.log('Token retrieved from localStorage:', savedToken);
+        } else {
+            console.warn('No token found in localStorage.');
         }
     }, []);
 
-    // Set the token
     const setAuthToken = (newToken) => {
         setToken(newToken);
         if (newToken) {
-            console.log('Setting token:', newToken); // Debugging line
-            axios.defaults.headers.common['authorization'] = `Bearer ${newToken}`;
+            axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+            console.log('Authorization header set:', `Bearer ${newToken}`);
         } else {
-            delete axios.defaults.headers.common['authorization'];
+            delete axios.defaults.headers.common['Authorization'];
+            console.warn('Authorization header removed.');
         }
     };
 
-    // Login function to handle authentication and token storage
     const login = async (credentials) => {
         try {
-            const response = await axios.post(`${BASE_URL}auth/login-user`, credentials); // Check your auth route
+            const response = await axios.post(`${BASE_URL}auth/login-user`, credentials);
             const { token } = response.data;
-            console.log('Login successful, received token:', token); // Debugging line
-            setAuthToken(token); // Store the token in global state
-            localStorage.setItem('token', token); // Optionally store it in local storage
+            setAuthToken(token);
+            localStorage.setItem('token', token);
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            setError(err.response?.data?.message || 'An error occurred during login');
         }
     };
 
-    // Calculate total income
-    const totalIncome = () => {
-        return incomes.reduce((total, income) => total + income.amount, 0);
-    };
+    const totalIncome = () => incomes.reduce((total, income) => total + income.amount, 0);
+    const totalExpenses = () => expenses.reduce((total, expense) => total + expense.amount, 0);
+    const totalBalance = () => totalIncome() - totalExpenses();
 
-    // Calculate total expenses
-    const totalExpenses = () => {
-        return expenses.reduce((total, expense) => total + expense.amount, 0);
-    };
-
-    // Calculate total balance
-    const totalBalance = () => {
-        return totalIncome() - totalExpenses();
-    };
-
-    // Get transaction history
     const transactionHistory = () => {
         const history = [...incomes, ...expenses];
         history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         return history.slice(0, 3);
     };
 
-    // Add income
     const addIncome = async (income) => {
         try {
-            const response = await axios.post(
-                'http://localhost:5000/api/v1/income/add-income',
-                income,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`  // Ensure token is passed here
-                    }
-                }
-            );
-            return response.data;
+            const response = await axios.post(`${BASE_URL}income/add-income`, income);
+            setIncomes([...incomes, response.data]);
         } catch (error) {
             console.error('Error adding income:', error.response ? error.response.data : error.message);
-            throw error;  // Rethrow the error to be handled in the component
+            setError(error.message);
         }
     };
 
-    
-    // Get incomes
     const getIncomes = async () => {
-        const token = localStorage.getItem('token');
         try {
-            const response = await fetch('http://localhost:5000/api/v1/income/get-incomes', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (!response.ok) throw new Error('Network response was not ok.');
-            const data = await response.json();
-            // Handle successful response
+            console.log('Making GET request to fetch incomes...');
+            const response = await axios.get(`${BASE_URL}income/get-incomes`);
+            console.log('Received incomes:', response.data);
+            setIncomes(response.data);
         } catch (error) {
             console.error('Error fetching incomes:', error);
             setError(error.message);
         }
     };
 
-    // Delete income
-    const deleteIncome = async (id, token) => {
+    const deleteIncome = async (id) => {
         try {
-            const response = await fetch(`${BASE_URL}delete-income/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok.');
-            }
+            await axios.delete(`${BASE_URL}income/delete-income/${id}`);
             setIncomes(prevIncomes => prevIncomes.filter(income => income._id !== id));
         } catch (error) {
             console.error('Error deleting income:', error);
+            setError(error.message);
         }
     };
 
-    // Add expense
     const addExpense = async (expense) => {
-        console.log('Adding expense with token:', axios.defaults.headers.common['authorization']); // Debugging line
         try {
-            await axios.post(`${BASE_URL}add-expense`, expense);
+            await axios.post(`${BASE_URL}expense/add-expense`, expense);
             await getExpenses();
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            console.error('Error adding expense:', err.response?.data?.message || err.message);
+            setError(err.message);
         }
     };
 
-    // Get expenses
     const getExpenses = async () => {
         try {
-            const response = await axios.get(`${BASE_URL}get-expenses`);
+            const response = await axios.get(`${BASE_URL}expense/get-expenses`);
             setExpenses(response.data);
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            console.error('Error fetching expenses:', err.response?.data?.message || err.message);
+            setError(err.message);
         }
     };
 
-    // Delete expense
     const deleteExpense = async (id) => {
         try {
-            await axios.delete(`${BASE_URL}delete-expense/${id}`);
+            await axios.delete(`${BASE_URL}expense/delete-expense/${id}`);
             await getExpenses();
         } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+            console.error('Error deleting expense:', err.response?.data?.message || err.message);
+            setError(err.message);
         }
     };
 
@@ -174,7 +133,7 @@ export const GlobalProvider = ({ children }) => {
             setError,
             token,
             setAuthToken,
-            login // Export login function
+            login
         }}>
             {children}
         </GlobalContext.Provider>
