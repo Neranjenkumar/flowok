@@ -33,6 +33,7 @@ exports.addIncome = async (req, res) => {
     }
 };
 
+
 // Get Incomes
 exports.getIncomes = async (req, res) => {
     try {
