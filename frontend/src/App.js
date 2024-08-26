@@ -13,12 +13,15 @@ import Register from './Components/Register/Register';
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [dataFetched, setDataFetched] = useState(false);
 
   useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
+      setDataFetched(true);
     } else {
       localStorage.removeItem('token');
+      setDataFetched(false);
     }
   }, [token]);
 
@@ -34,9 +37,18 @@ function App() {
             <Routes>
               <Route path="/login" element={<Login setToken={setToken} />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/dashboard" element={token ? <Dashboard token={token} /> : <Navigate to="/login" />} />
-              <Route path="/income" element={token ? <Income token={token} /> : <Navigate to="/login" />} />
-              <Route path="/expenses" element={token ? <Expenses token={token} /> : <Navigate to="/login" />} />
+              <Route 
+                path="/dashboard" 
+                element={token ? <Dashboard token={token} dataFetched={dataFetched} setDataFetched={setDataFetched} /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/income" 
+                element={token ? <Income token={token} dataFetched={dataFetched} setDataFetched={setDataFetched} /> : <Navigate to="/login" />} 
+              />
+              <Route 
+                path="/expenses" 
+                element={token ? <Expenses token={token} dataFetched={dataFetched} setDataFetched={setDataFetched} /> : <Navigate to="/login" />} 
+              />
               <Route path="*" element={<Navigate to={token ? "/dashboard" : "/login"} />} />
             </Routes>
           </MainContent>

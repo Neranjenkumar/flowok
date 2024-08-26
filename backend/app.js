@@ -12,12 +12,14 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 
-// Register route should not have authMiddleware
+// Register auth routes
 app.use('/api/v1/auth', require('./routes/auth'));
 
-// Apply middleware to all routes except /auth
+// Dynamically register all other routes with appropriate prefixes
 readdirSync('./routes').forEach((route) => {
-    if (route !== 'auth.js') {
+    if (route === 'expense.js') {
+        app.use('/api/v1/expense', require('./routes/' + route));
+    } else if (route === 'income.js') {
         app.use('/api/v1/income', require('./routes/' + route));
     }
 });

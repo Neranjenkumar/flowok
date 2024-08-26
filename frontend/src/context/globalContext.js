@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import axios from 'axios';
 
 const BASE_URL = "http://localhost:5000/api/v1/";
@@ -62,81 +62,46 @@ export const GlobalProvider = ({ children }) => {
             throw error;
         }
     };
-    const getIncomes = async () => {
+
+    const getIncomes = useCallback(async () => {
         try {
-            console.log('Making GET request to fetch incomes...');
-            console.log('Token being sent:', token);
-            console.log('Authorization header:', axios.defaults.headers.common['Authorization']);
             const response = await axios.get(`${BASE_URL}income/get-incomes`);
-            console.log('Received incomes:', response.data);
             setIncomes(response.data);
         } catch (error) {
-            console.error('Error fetching incomes:', error);
-            setError(error.message);
+            console.error('Error fetching incomes:', error.response ? error.response.data : error.message);
+            throw error;
         }
-    };
-    
-    const deleteIncome = async (id) => {
-        try {
-            await axios.delete(`${BASE_URL}income/delete-income/${id}`);
-            setIncomes(prevIncomes => prevIncomes.filter(income => income._id !== id));
-        } catch (error) {
-            console.error('Error deleting income:', error);
-        }
-    };
+    }, []);
 
-    const addExpense = async (expense) => {
-        try {
-            await axios.post(`${BASE_URL}expense/add-expense`, expense);
-            await getExpenses();
-        } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
-        }
-    };
-
-    const getExpenses = async () => {
+    const getExpenses = useCallback(async () => {
         try {
             const response = await axios.get(`${BASE_URL}expense/get-expenses`);
             setExpenses(response.data);
-        } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
+        } catch (error) {
+            console.error('Error fetching expenses:', error.response ? error.response.data : error.message);
+            throw error;
         }
-    };
-
-    const deleteExpense = async (id) => {
-        try {
-            await axios.delete(`${BASE_URL}expense/delete-expense/${id}`);
-            await getExpenses();
-        } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred');
-        }
-    };
+    }, []);
 
     return (
-        <GlobalContext.Provider value={{
-            addIncome,
-            getIncomes,
-            incomes,
-            deleteIncome,
-            expenses,
-            totalIncome,
-            addExpense,
-            getExpenses,
-            deleteExpense,
-            totalExpenses,
-            totalBalance,
-            transactionHistory,
-            error,
-            setError,
-            token,
-            setAuthToken,
-            login
-        }}>
+        <GlobalContext.Provider
+            value={{
+                incomes,
+                expenses,
+                error,
+                login,
+                totalIncome,
+                totalExpenses,
+                totalBalance,
+                transactionHistory,
+                addIncome,
+                getIncomes,
+                getExpenses,
+            }}
+        >
             {children}
         </GlobalContext.Provider>
     );
 };
 
-export const useGlobalContext = () => {
-    return useContext(GlobalContext);
-};
+export const useGlobalContext = () => useContext(GlobalContext);

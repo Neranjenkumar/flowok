@@ -26,8 +26,8 @@ const authenticateToken = require('./authMiddleware');
 const { addExpense, getExpenses, deleteExpense } = require('../controllers/expense');
 
 // Apply authenticateToken middleware to protect these routes
-router.post('/add-expense', authenticateToken, addExpense);
 router.get('/get-expenses', authenticateToken, getExpenses);
+router.post('/add-expense', authenticateToken, addExpense);
 router.delete('/delete-expense/:id', authenticateToken, deleteExpense);
 
 module.exports = router;

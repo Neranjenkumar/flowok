@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useGlobalContext } from '../../context/globalContext';
 import History from '../../History/History';
 import { InnerLayout } from '../../styles/Layouts';
@@ -11,12 +11,16 @@ import { AiFillCaretDown, AiOutlineMenu } from 'react-icons/ai'; // Ant Design i
 function Dashboard({ token }) {
     const { totalExpenses, incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext();
 
-    useEffect(() => {
+    const fetchIncomesAndExpenses = useCallback(() => {
         if (token) {
             getIncomes(token);
             getExpenses(token);
         }
     }, [token, getIncomes, getExpenses]);
+
+    useEffect(() => {
+        fetchIncomesAndExpenses();
+    }, [fetchIncomesAndExpenses]);
 
     const minIncome = incomes.length > 0 ? Math.min(...incomes.map(item => item.amount)) : 0;
     const maxIncome = incomes.length > 0 ? Math.max(...incomes.map(item => item.amount)) : 0;
@@ -69,6 +73,5 @@ function Dashboard({ token }) {
         </div>
     );
 }
-
 
 export default Dashboard;
