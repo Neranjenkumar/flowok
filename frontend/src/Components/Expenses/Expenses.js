@@ -18,7 +18,10 @@ function Expenses() {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
+            console.log('Token found:', token);
             getExpenses(token); // Pass the token to fetch user-specific data
+        } else {
+            console.error('No token found');
         }
     }, [getExpenses]);
 

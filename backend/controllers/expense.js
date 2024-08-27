@@ -18,6 +18,7 @@ const upload = multer({ storage: storage }).single('file');
 
 // Add Expense
 exports.addExpense = (req, res) => {
+  console.log('User:', req.user);  // Debug log
   upload(req, res, async (err) => {
     if (err) {
       console.error('File upload error:', err.message);
@@ -36,7 +37,7 @@ exports.addExpense = (req, res) => {
 
     try {
       const expense = new Expense({
-        userId: req.user._id,  // Associate with the logged-in user
+        userId: req.user._id,  // Ensure this is set
         title,
         amount,
         category,
@@ -53,6 +54,7 @@ exports.addExpense = (req, res) => {
     }
   });
 };
+
 
 // Get Expenses
 exports.getExpenses = async (req, res) => {

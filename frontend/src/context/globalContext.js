@@ -15,9 +15,6 @@ export const GlobalProvider = ({ children }) => {
         const savedToken = localStorage.getItem('token');
         if (savedToken) {
             setAuthToken(savedToken);
-            console.log('Token retrieved from localStorage:', savedToken);
-        } else {
-            console.warn('No token found in localStorage.');
         }
     }, []);
 
@@ -25,10 +22,8 @@ export const GlobalProvider = ({ children }) => {
         setToken(newToken);
         if (newToken) {
             axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-            console.log('Authorization header set:', `Bearer ${newToken}`);
         } else {
             delete axios.defaults.headers.common['Authorization'];
-            console.warn('Authorization header removed.');
         }
     };
 
@@ -58,20 +53,39 @@ export const GlobalProvider = ({ children }) => {
             const response = await axios.post(`${BASE_URL}income/add-income`, income);
             setIncomes([...incomes, response.data]);
         } catch (error) {
-            console.error('Error adding income:', error.response ? error.response.data : error.message);
-            throw error;
+            setError(error.response?.data?.message || 'Failed to add income');
         }
     };
+
+// globalContext.js (or wherever you are making the API call)
+const addExpense = async (formData) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${BASE_URL}expense/add-expense`, { // Fixed URL
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`, // Include token in headers
+            },
+            body: formData,
+        });
+        const result = await response.json();
+        if (response.ok) {
+            // Handle success
+        } else {
+            setError(result.message);
+        }
+    } catch (error) {
+        setError('An error occurred');
+    }
+};
+
 
     const getIncomes = useCallback(async () => {
         try {
             const response = await axios.get(`${BASE_URL}income/get-incomes`);
             setIncomes(response.data);
         } catch (error) {
-            console.error('Error fetching incomes:', error.response ? error.response.data : error.message);
-
             if (error.response && error.response.status === 401) {
-                // Retry fetching incomes after refreshing the token
                 const savedToken = localStorage.getItem('token');
                 if (savedToken) {
                     setAuthToken(savedToken);
@@ -79,9 +93,11 @@ export const GlobalProvider = ({ children }) => {
                         const retryResponse = await axios.get(`${BASE_URL}income/get-incomes`);
                         setIncomes(retryResponse.data);
                     } catch (retryError) {
-                        console.error('Retry failed:', retryError.response ? retryError.response.data : retryError.message);
+                        setError(retryError.response?.data?.message || 'Failed to fetch incomes');
                     }
                 }
+            } else {
+                setError(error.response?.data?.message || 'Failed to fetch incomes');
             }
         }
     }, []);
@@ -91,10 +107,7 @@ export const GlobalProvider = ({ children }) => {
             const response = await axios.get(`${BASE_URL}expense/get-expenses`);
             setExpenses(response.data);
         } catch (error) {
-            console.error('Error fetching expenses:', error.response ? error.response.data : error.message);
-
             if (error.response && error.response.status === 401) {
-                // Retry fetching expenses after refreshing the token
                 const savedToken = localStorage.getItem('token');
                 if (savedToken) {
                     setAuthToken(savedToken);
@@ -102,9 +115,11 @@ export const GlobalProvider = ({ children }) => {
                         const retryResponse = await axios.get(`${BASE_URL}expense/get-expenses`);
                         setExpenses(retryResponse.data);
                     } catch (retryError) {
-                        console.error('Retry failed:', retryError.response ? retryError.response.data : retryError.message);
+                        setError(retryError.response?.data?.message || 'Failed to fetch expenses');
                     }
                 }
+            } else {
+                setError(error.response?.data?.message || 'Failed to fetch expenses');
             }
         }
     }, []);
@@ -121,8 +136,10 @@ export const GlobalProvider = ({ children }) => {
                 totalBalance,
                 transactionHistory,
                 addIncome,
+                addExpense, // Added here
                 getIncomes,
                 getExpenses,
+                setError, // Added here
             }}
         >
             {children}

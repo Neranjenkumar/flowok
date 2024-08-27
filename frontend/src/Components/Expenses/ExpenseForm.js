@@ -7,31 +7,46 @@ import Button from '../Button/Button';
 import { plus } from '../../utils/Icons';
 
 function ExpenseForm() {
-    const { addExpense, getExpenses, error, setError } = useGlobalContext();
+    const { addExpense, error, setError } = useGlobalContext();
     const [inputState, setInputState] = useState({
         title: '',
         amount: '',
         date: '',
         category: '',
         description: '',
+        file: null,
     });
 
-    const { title, amount, date, category, description } = inputState;
+    const { title, amount, date, category, description, file } = inputState;
 
     const handleInput = name => e => {
         setInputState({ ...inputState, [name]: e.target.value });
         setError('');
     };
 
+    const handleFileChange = e => {
+        setInputState({ ...inputState, file: e.target.files[0] });
+        setError('');
+    };
+
     const handleSubmit = e => {
         e.preventDefault();
-        addExpense(inputState);
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('amount', amount);
+        formData.append('date', date);
+        formData.append('category', category);
+        formData.append('description', description);
+        if (file) formData.append('file', file);
+
+        addExpense(formData);
         setInputState({
             title: '',
             amount: '',
             date: '',
             category: '',
             description: '',
+            file: null,
         });
     };
 
@@ -48,7 +63,8 @@ function ExpenseForm() {
                 />
             </div>
             <div className="input-control">
-                <input value={amount}  
+                <input 
+                    value={amount}  
                     type="text" 
                     name={'amount'} 
                     placeholder={'Expense Amount'}
@@ -61,14 +77,14 @@ function ExpenseForm() {
                     placeholderText='Enter A Date'
                     selected={date}
                     dateFormat="dd/MM/yyyy"
-                    onChange={(date) => {
+                    onChange={date => {
                         setInputState({ ...inputState, date: date });
                     }}
                 />
             </div>
             <div className="selects input-control">
                 <select required value={category} name="category" id="category" onChange={handleInput('category')}>
-                    <option value=""  disabled >Select Option</option>
+                    <option value="" disabled>Select Option</option>
                     <option value="food">Food</option>
                     <option value="shopping">Shopping</option>
                     <option value="transport">Transport</option>
@@ -78,7 +94,22 @@ function ExpenseForm() {
                 </select>
             </div>
             <div className="input-control">
-                <textarea name="description" value={description} placeholder='Add A Reference' id="description" cols="30" rows="4" onChange={handleInput('description')}></textarea>
+                <textarea 
+                    name="description" 
+                    value={description} 
+                    placeholder='Add A Reference' 
+                    id="description" 
+                    cols="30" 
+                    rows="4" 
+                    onChange={handleInput('description')}
+                ></textarea>
+            </div>
+            <div className="input-control">
+                <input 
+                    type="file" 
+                    name="file" 
+                    onChange={handleFileChange}
+                />
             </div>
             <div className="submit-btn">
                 <Button 
