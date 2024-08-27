@@ -13,6 +13,7 @@ export const GlobalProvider = ({ children }) => {
 
     useEffect(() => {
         const savedToken = localStorage.getItem('token');
+        console.log('Retrieved Token:', savedToken); // Debugging line
         if (savedToken) {
             setAuthToken(savedToken);
         }
@@ -61,21 +62,30 @@ export const GlobalProvider = ({ children }) => {
 const addExpense = async (formData) => {
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${BASE_URL}expense/add-expense`, { // Fixed URL
+        console.log('Token being sent:', token);  // Debug log
+        if (!token) {
+            setError('No authentication token found');
+            return;
+        }
+
+        const response = await fetch(`${BASE_URL}expense/add-expense`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`, // Include token in headers
+                'Authorization': `Bearer ${token}`,
             },
             body: formData,
         });
+
         const result = await response.json();
         if (response.ok) {
-            // Handle success
+            console.log('Expense added successfully:', result);
+            setExpenses(prev => [...prev, result.expense]);  // Update the state with the new expense
         } else {
-            setError(result.message);
+            setError(result.message || 'Failed to add expense');
         }
     } catch (error) {
-        setError('An error occurred');
+        console.error('Error adding expense:', error);
+        setError('An error occurred while adding the expense');
     }
 };
 

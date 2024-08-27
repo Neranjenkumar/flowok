@@ -4,21 +4,36 @@ const path = require('path');
 
 // Set up multer for file storage
 const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
+  destination: function (req, file, cb) {
     cb(null, 'uploads/'); // Ensure this folder exists
   },
-  filename: function(req, file, cb) {
+  filename: function (req, file, cb) {
     const filename = Date.now() + path.extname(file.originalname);
     console.log('Generated filename:', filename);
     cb(null, filename);
   }
 });
 
-const upload = multer({ storage: storage }).single('file');
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|pdf/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb('Error: Files of type jpeg, jpg, png, and pdf only!');
+    }
+  }
+}).single('file');
 
 // Add Expense
+// Add Expense
 exports.addExpense = (req, res) => {
-  console.log('User:', req.user);  // Debug log
+  console.log('Received request with user:', req.user);  // Debug log
+
   upload(req, res, async (err) => {
     if (err) {
       console.error('File upload error:', err.message);
@@ -36,6 +51,10 @@ exports.addExpense = (req, res) => {
     }
 
     try {
+      if (!req.user || !req.user._id) {
+        return res.status(401).json({ message: 'Unauthorized: No user information found' });
+      }
+
       const expense = new Expense({
         userId: req.user._id,  // Ensure this is set
         title,
@@ -54,7 +73,6 @@ exports.addExpense = (req, res) => {
     }
   });
 };
-
 
 // Get Expenses
 exports.getExpenses = async (req, res) => {
