@@ -69,7 +69,20 @@ export const GlobalProvider = ({ children }) => {
             setIncomes(response.data);
         } catch (error) {
             console.error('Error fetching incomes:', error.response ? error.response.data : error.message);
-            throw error;
+
+            if (error.response && error.response.status === 401) {
+                // Retry fetching incomes after refreshing the token
+                const savedToken = localStorage.getItem('token');
+                if (savedToken) {
+                    setAuthToken(savedToken);
+                    try {
+                        const retryResponse = await axios.get(`${BASE_URL}income/get-incomes`);
+                        setIncomes(retryResponse.data);
+                    } catch (retryError) {
+                        console.error('Retry failed:', retryError.response ? retryError.response.data : retryError.message);
+                    }
+                }
+            }
         }
     }, []);
 
@@ -79,7 +92,20 @@ export const GlobalProvider = ({ children }) => {
             setExpenses(response.data);
         } catch (error) {
             console.error('Error fetching expenses:', error.response ? error.response.data : error.message);
-            throw error;
+
+            if (error.response && error.response.status === 401) {
+                // Retry fetching expenses after refreshing the token
+                const savedToken = localStorage.getItem('token');
+                if (savedToken) {
+                    setAuthToken(savedToken);
+                    try {
+                        const retryResponse = await axios.get(`${BASE_URL}expense/get-expenses`);
+                        setExpenses(retryResponse.data);
+                    } catch (retryError) {
+                        console.error('Retry failed:', retryError.response ? retryError.response.data : retryError.message);
+                    }
+                }
+            }
         }
     }, []);
 
