@@ -35,42 +35,43 @@ exports.addExpense = (req, res) => {
   console.log('Received request with user:', req.user);  // Debug log
 
   upload(req, res, async (err) => {
-    if (err) {
-      console.error('File upload error:', err.message);
-      return res.status(500).json({ message: 'File upload error', error: err.message });
-    }
-
-    const { title, amount, category, description, date } = req.body;
-    const file = req.file ? req.file.path : null;
-
-    if (!title || !category || !description || !date) {
-      return res.status(400).json({ message: 'All fields are required!' });
-    }
-    if (amount <= 0 || isNaN(amount)) {
-      return res.status(400).json({ message: 'Amount must be a positive number!' });
-    }
-
-    try {
-      if (!req.user || !req.user._id) {
-        return res.status(401).json({ message: 'Unauthorized: No user information found' });
+      if (err) {
+          console.error('File upload error:', err.message);
+          return res.status(500).json({ message: 'File upload error', error: err.message });
       }
 
-      const expense = new Expense({
-        userId: req.user._id,  // Ensure this is set
-        title,
-        amount,
-        category,
-        description,
-        date,
-        file // Save the file path
-      });
+      const { title, amount, category, description, date } = req.body;
+      const file = req.file ? req.file.path : null;
 
-      await expense.save();
-      res.status(201).json({ message: 'Expense Added', expense });
-    } catch (error) {
-      console.error('Error saving expense:', error.message);
-      res.status(500).json({ message: 'Server Error', error: error.message });
-    }
+      if (!title || !category || !description || !date) {
+          return res.status(400).json({ message: 'All fields are required!' });
+      }
+      if (amount <= 0 || isNaN(amount)) {
+          return res.status(400).json({ message: 'Amount must be a positive number!' });
+      }
+
+      try {
+          // Use `req.user.id` instead of `req.user._id`
+          if (!req.user || !req.user.id) {
+              return res.status(401).json({ message: 'Unauthorized: No user information found' });
+          }
+
+          const expense = new Expense({
+              userId: req.user.id,  // Ensure this is set correctly
+              title,
+              amount,
+              category,
+              description,
+              date,
+              file // Save the file path
+          });
+
+          await expense.save();
+          res.status(201).json({ message: 'Expense Added', expense });
+      } catch (error) {
+          console.error('Error saving expense:', error.message);
+          res.status(500).json({ message: 'Server Error', error: error.message });
+      }
   });
 };
 
