@@ -33,9 +33,8 @@ const upload = multer({
 // Add Expense
 exports.addExpense = (req, res) => {
   console.log('Received request with user:', req.user);  // Debug log
-// In your backend controller (e.g., addExpense)
-console.log('Received expense data:', req.body);
-console.log('Authenticated userId:', req.user._id);
+  console.log('Received expense data:', req.body);
+  console.log('Authenticated userId:', req.user.id);
 
   upload(req, res, async (err) => {
       if (err) {
@@ -54,7 +53,6 @@ console.log('Authenticated userId:', req.user._id);
       }
 
       try {
-          // Use `req.user.id` instead of `req.user._id`
           if (!req.user || !req.user.id) {
               return res.status(401).json({ message: 'Unauthorized: No user information found' });
           }
@@ -81,7 +79,7 @@ console.log('Authenticated userId:', req.user._id);
 // Get Expenses
 exports.getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    const expenses = await Expense.find({ userId: req.user.id }).sort({ createdAt: -1 });
     res.status(200).json(expenses);
   } catch (error) {
     console.error('Error fetching expenses:', error.message);
@@ -93,7 +91,7 @@ exports.getExpenses = async (req, res) => {
 exports.deleteExpense = async (req, res) => {
   const { id } = req.params;
   try {
-    const expense = await Expense.findOneAndDelete({ _id: id, userId: req.user._id });
+    const expense = await Expense.findOneAndDelete({ _id: id, userId: req.user.id });
     if (!expense) {
       return res.status(404).json({ message: 'Expense not found or unauthorized' });
     }

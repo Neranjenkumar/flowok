@@ -5,22 +5,14 @@ import { InnerLayout } from '../../styles/Layouts';
 import { dollar } from '../../utils/Icons';
 import Chart from '../Chart/Chart';
 import './Dashboard.css';
-import { FaHome, FaUserAlt } from 'react-icons/fa'; // FontAwesome icons
-import { AiFillCaretDown, AiOutlineMenu } from 'react-icons/ai'; // Ant Design icons
 
-function Dashboard({ token }) {
+function Dashboard() {
     const { totalExpenses, incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext();
-
-    const fetchIncomesAndExpenses = useCallback(() => {
-        if (token) {
-            getIncomes(token);
-            getExpenses(token);
-        }
-    }, [token, getIncomes, getExpenses]);
-
+    
     useEffect(() => {
-        fetchIncomesAndExpenses();
-    }, [fetchIncomesAndExpenses]);
+        getIncomes(); // Ensure incomes are fetched when component loads
+        getExpenses(); // Ensure expenses are fetched when component loads
+    }, [getIncomes, getExpenses]); // Use dependency array to avoid multiple calls
 
     const minIncome = incomes.length > 0 ? Math.min(...incomes.map(item => item.amount)) : 0;
     const maxIncome = incomes.length > 0 ? Math.max(...incomes.map(item => item.amount)) : 0;

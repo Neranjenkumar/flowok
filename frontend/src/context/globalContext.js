@@ -392,12 +392,13 @@ export const GlobalProvider = ({ children }) => {
                 throw new Error('Failed to add expense');
             }
     
-            getExpenses(); // Fetch expenses after adding a new one
+           await  getExpenses(); // Fetch expenses after adding a new one
     
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to add expense');
         }
     };
+    
     const deleteIncome = async (id) => {
         try {
             await axios.delete(`${BASE_URL}income/delete-income/${id}`);
@@ -425,14 +426,25 @@ export const GlobalProvider = ({ children }) => {
         }
     }, []);
 
+    // const getExpenses = useCallback(async () => {
+    //     try {
+    //         const response = await axios.get(`${BASE_URL}expense/get-expenses`);
+    //         setExpenses(response.data);
+    //     } catch (error) {
+    //         setError(error.response?.data?.message || 'Failed to fetch expenses');
+    //     }
+    // }, []);
+
     const getExpenses = useCallback(async () => {
         try {
             const response = await axios.get(`${BASE_URL}expense/get-expenses`);
-            setExpenses(response.data);
+            console.log('Fetched expenses:', response.data); // Debug log
+            setExpenses(response.data); // Update the expenses state with the fetched data
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to fetch expenses');
         }
     }, []);
+    
 
     useEffect(() => {
         // Fetch incomes and expenses when the token is set or on component mount
