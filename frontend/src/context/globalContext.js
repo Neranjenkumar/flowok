@@ -382,20 +382,22 @@ export const GlobalProvider = ({ children }) => {
 
     const addExpense = async (formData) => {
         try {
+            console.log('Sending expense data:', formData);
             const response = await axios.post(`${BASE_URL}expense/add-expense`, formData);
-
-            // Check if the response contains the new expense data
+            
             if (response.data && response.data.expense) {
                 setExpenses(prevExpenses => [...prevExpenses, response.data.expense]);
+                console.log('Added expense:', response.data.expense);
             } else {
                 throw new Error('Failed to add expense');
             }
-
+    
+            getExpenses(); // Fetch expenses after adding a new one
+    
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to add expense');
         }
     };
-
     const deleteIncome = async (id) => {
         try {
             await axios.delete(`${BASE_URL}income/delete-income/${id}`);

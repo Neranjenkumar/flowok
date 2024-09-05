@@ -31,15 +31,20 @@ function ExpenseForm() {
 
     const handleSubmit = e => {
         e.preventDefault();
+        
+        // Create FormData to send the expense data
         const formData = new FormData();
         formData.append('title', title);
         formData.append('amount', amount);
-        formData.append('date', date);
+        formData.append('date', date ? date.toISOString() : '');  // Convert date to ISO string
         formData.append('category', category);
         formData.append('description', description);
-        if (file) formData.append('file', file);
+        if (file) formData.append('file', file);  // Append file if selected
 
+        // Call addExpense function with FormData
         addExpense(formData);
+
+        // Reset form state after submission
         setInputState({
             title: '',
             amount: '',
@@ -65,7 +70,7 @@ function ExpenseForm() {
             <div className="input-control">
                 <input 
                     value={amount}  
-                    type="text" 
+                    type="number" 
                     name={'amount'} 
                     placeholder={'Expense Amount'}
                     onChange={handleInput('amount')} 
@@ -77,14 +82,12 @@ function ExpenseForm() {
                     placeholderText='Enter A Date'
                     selected={date}
                     dateFormat="dd/MM/yyyy"
-                    onChange={date => {
-                        setInputState({ ...inputState, date: date });
-                    }}
+                    onChange={date => setInputState({ ...inputState, date: date })}
                 />
             </div>
             <div className="selects input-control">
                 <select required value={category} name="category" id="category" onChange={handleInput('category')}>
-                    <option value="" disabled>Select Option</option>
+                    <option value="" disabled>Select Category</option>
                     <option value="food">Food</option>
                     <option value="shopping">Shopping</option>
                     <option value="transport">Transport</option>
@@ -97,7 +100,7 @@ function ExpenseForm() {
                 <textarea 
                     name="description" 
                     value={description} 
-                    placeholder='Add A Reference' 
+                    placeholder='Add A Description' 
                     id="description" 
                     cols="30" 
                     rows="4" 

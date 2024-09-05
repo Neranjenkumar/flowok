@@ -33,6 +33,9 @@ const upload = multer({
 // Add Expense
 exports.addExpense = (req, res) => {
   console.log('Received request with user:', req.user);  // Debug log
+// In your backend controller (e.g., addExpense)
+console.log('Received expense data:', req.body);
+console.log('Authenticated userId:', req.user._id);
 
   upload(req, res, async (err) => {
       if (err) {
