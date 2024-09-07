@@ -260,6 +260,11 @@ app.get('/paginatedUsers', authMiddleware, async (req, res) => {
     res.status(500).json({ status: 'error', error: error.message });
   }
 });
+app.get('/api/v1/get-admin-key', (req, res) => {
+  res.json({ adminKey: 'your_admin_key_here' });
+});
+
+
 
 // Start server
 const PORT = process.env.PORT || 5000;

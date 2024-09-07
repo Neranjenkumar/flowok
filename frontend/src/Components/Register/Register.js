@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -9,14 +9,29 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [userType, setUserType] = useState('User'); // Default to 'User'
   const [secretKey, setSecretKey] = useState('');
+  const [adminKey, setAdminKey] = useState('');  // Store admin key from backend
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Fetch the admin key from the backend when the component mounts
+    const fetchAdminKey = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/v1/get-admin-key'); // Adjust the URL to match your API endpoint
+        setAdminKey(response.data.adminKey);
+      } catch (error) {
+        console.error('Error fetching admin key:', error);
+      }
+    };
+
+    fetchAdminKey(); // Call the function when the component loads
+  }, []); // Empty dependency array means it runs only on mount
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Admin validation
-    if (userType === 'Admin' && secretKey !== process.env.REACT_APP_ADMIN_SECRET) {
+    if (userType === 'Admin' && secretKey !== adminKey) {
       setMessage('Invalid Admin');
       return;
     }

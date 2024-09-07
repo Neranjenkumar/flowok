@@ -14,10 +14,10 @@ router.post('/register', async (req, res) => {
     if (!fname || !lname || !email || !password || !userType) {
         return res.status(400).json({ error: 'All fields are required' });
     }
-
+    const adminKey = process.env.ADMIN_KEY || "No key found!";
     // Check if user is trying to register as Admin
     if (userType === 'Admin') {
-        if (secretKey !== process.env.ADMIN_SECRET) {
+        if (secretKey !== adminKey) {
             return res.status(403).json({ error: 'Invalid Admin Secret Key' });
         }
     }
