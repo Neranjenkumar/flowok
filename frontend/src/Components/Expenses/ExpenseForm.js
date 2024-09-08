@@ -121,7 +121,7 @@ function ExpenseForm() {
                     bPad={'.8rem 1.6rem'}
                     bRad={'30px'}
                     bg={'var(--color-accent'}
-                    color={'#fff'}
+                    color={'#580000'}
                 />
             </div>
         </FormStyled>
@@ -146,7 +146,7 @@ const FormStyled = styled.form`
         background: transparent;
         resize: none;
         box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-        color: rgba(34, 34, 96, 0.9);
+        color: rgb(88, 0, 0);
         &::placeholder{
             color: rgba(34, 34, 96, 0.4);
         }
