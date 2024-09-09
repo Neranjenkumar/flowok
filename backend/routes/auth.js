@@ -194,4 +194,23 @@ router.get('/get-expense', authMiddleware, async (req, res) => {
     }
 });
 
+//for admin
+router.get('/get-admin-key', (req, res) => {
+    const adminKey = process.env.ADMIN_KEY;  // Use the .env variable from the backend
+    res.json({ adminKey });
+  });
+
+//email search
+router.get('/email/:email', async (req, res) => {
+    const email = req.params.email;  // Get email from URL params
+    try {
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 module.exports = router;

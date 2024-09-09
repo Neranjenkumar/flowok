@@ -54,6 +54,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
+// Register the user route for paginated users
 
 // Register auth routes
 app.use('/api/v1/auth', require('./routes/auth'));
@@ -66,10 +67,7 @@ readdirSync('./routes').forEach((route) => {
         app.use('/api/v1/income', require('./routes/' + route));
     }
 });
-const apiRoutes = require('./routes/apiRoutes');  // Adjust based on your file structure
-
-// Use the routes
-app.use('/api/v1', apiRoutes);  // This adds your route at /api/v1/get-admin-key
+ // This adds your route at /api/v1/get-admin-key
 
 const startServer = async () => {
     try {
