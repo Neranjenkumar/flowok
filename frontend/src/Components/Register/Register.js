@@ -17,7 +17,7 @@ const Register = () => {
     // Fetch the admin key from the backend when the component mounts
     const fetchAdminKey = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/v1/get-admin-key'); // Adjust the URL to match your API endpoint
+        const response = await axios.get('http://localhost:5000/api/v1/auth/get-admin-key'); // Adjust the URL to match your API endpoint
         setAdminKey(response.data.adminKey);
       } catch (error) {
         console.error('Error fetching admin key:', error);
