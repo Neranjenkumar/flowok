@@ -231,37 +231,64 @@ app.get('/get-image', async (req, res) => {
 });
 
 // Paginated Users (Protected)
-app.get('/paginatedUsers', authMiddleware, async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+// app.get('/paginatedUsers', authMiddleware, async (req, res) => {
+//   const page = parseInt(req.query.page) || 1;
+//   const limit = parseInt(req.query.limit) || 10;
+
+//   try {
+//     const allUser = await User.find({});
+//     const totalUser = allUser.length;
+//     const startIndex = (page - 1) * limit;
+//     const endIndex = page * limit;
+
+//     const results = {
+//       totalUser,
+//       pageCount: Math.ceil(totalUser / limit),
+//     };
+
+//     if (endIndex < totalUser) {
+//       results.next = { page: page + 1 };
+//     }
+
+//     if (startIndex > 0) {
+//       results.previous = { page: page - 1 };
+//     }
+
+//     results.users = allUser.slice(startIndex, endIndex);
+//     res.status(200).json(results);
+//   } catch (error) {
+//     res.status(500).json({ status: 'error', error: error.message });
+//   }
+// });
+// app.get('/api/v1/get-admin-key', (req, res) => {
+//   res.json({ adminKey: 'your_admin_key_here' });
+// });
+app.get('/paginatedUsers', authenticateToken, async (req, res) => {
+  const { page, limit, search } = req.query;
+
+  // Validate query parameters
+  const pageNumber = parseInt(page, 10) || 1;
+  const limitNumber = parseInt(limit, 10) || 10;
+  const searchTerm = search || '';
 
   try {
-    const allUser = await User.find({});
-    const totalUser = allUser.length;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
+    // Logic to fetch users from the database with pagination and search
+    const users = await User.find({ email: { $regex: searchTerm, $options: 'i' } })
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
 
-    const results = {
-      totalUser,
-      pageCount: Math.ceil(totalUser / limit),
-    };
+    const totalUsers = await User.countDocuments({ email: { $regex: searchTerm, $options: 'i' } });
 
-    if (endIndex < totalUser) {
-      results.next = { page: page + 1 };
-    }
-
-    if (startIndex > 0) {
-      results.previous = { page: page - 1 };
-    }
-
-    results.users = allUser.slice(startIndex, endIndex);
-    res.status(200).json(results);
+    res.status(200).json({
+      users,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalUsers / limitNumber),
+      totalUsers,
+    });
   } catch (error) {
-    res.status(500).json({ status: 'error', error: error.message });
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Server error' });
   }
-});
-app.get('/api/v1/get-admin-key', (req, res) => {
-  res.json({ adminKey: 'your_admin_key_here' });
 });
 
 

@@ -220,7 +220,39 @@ const MainContent = styled.main`
     margin-top: 120px;
   }
 `;
+// const MainContent = styled.main`
+//   flex: 1;
+//   background: linear-gradient(135deg, rgba(29, 7, 64, 0.8) 30%, rgba(255, 255, 255, 0.1) 100%);
+//   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+//   border-radius: 32px;
+//   padding: 2rem;
+//   margin: 1rem;
+//   margin-top: 100px;
+//   margin-left: ${({ sidebarOpen }) => (sidebarOpen ? '250px' : '0')};
+//   transition: margin-left 350ms ease, background 350ms ease;
+//   backdrop-filter: blur(10px);
+//   border: none;
 
+//   @media (min-width: 768px) {
+//     padding: 2.5rem;
+//     margin: 2rem;
+//     margin-top: 100px;
+//   }
+
+//   &::-webkit-scrollbar {
+//     width: 0;
+//   }
+
+//   @media (max-width: 768px) {
+//     margin-left: 0;
+//     margin-top: 120px;
+//   }
+
+//   &:hover {
+//     background: linear-gradient(135deg, rgba(29, 7, 64, 0.7) 30%, rgba(255, 255, 255, 0.15) 100%);
+//     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+//   }
+// `;
 export default App;
 
 

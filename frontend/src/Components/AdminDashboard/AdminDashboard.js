@@ -9,7 +9,7 @@ function AdminDashboard({ token }) {
   const fetchUserByEmail = async () => {
     try {
       const encodedEmail = encodeURIComponent(email);  // Encode email to handle special characters
-      const response = await axios.get(`http://localhost:5000/api/users/${encodedEmail}`, {
+      const response = await axios.get(`http://localhost:5000/api/v1/auth/email/${encodedEmail}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -21,7 +21,6 @@ function AdminDashboard({ token }) {
       setUserData(null);  // Clear any previous data
     }
   };
-  
 
   return (
     <div>
@@ -39,8 +38,9 @@ function AdminDashboard({ token }) {
         <div>
           <h2>User Data</h2>
           <p>Email: {userData.email}</p>
-          <p>First Name: {userData.firstName}</p>
-          <p>Last Name: {userData.lastName}</p>
+          <p>First Name: {userData.fname}</p>
+          <p>Last Name: {userData.lname}</p>
+
           {/* Add more fields as needed */}
         </div>
       )}
