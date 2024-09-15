@@ -121,6 +121,7 @@ import Dashboard from './Components/Dashboard/Dashboard';
 import Income from './Components/Income/Income';
 import Expenses from './Components/Expenses/Expenses';
 import Login from './Components/Login/Login';
+import ForgotPassword from './Components/Login/forgotpassword';
 import Register from './Components/Register/Register';
 //import AdminDashboard from './Components/AdminDashboard/AdminDashboard'; // Import AdminDashboard
 
@@ -151,6 +152,7 @@ function App() {
           <MainContent sidebarOpen={sidebarOpen}>
             <Routes>
               <Route path="/login" element={<Login setToken={setToken} />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/register" element={<Register />} />
 
               {/* Admin dashboard route */}

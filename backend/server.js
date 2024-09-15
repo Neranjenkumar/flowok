@@ -7,8 +7,14 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const User = require('./models/User');
 const authMiddleware = require('./middleware/authMiddleware'); // Import the auth middleware
+const router = require('./routes/auth'); // Assuming routes/auth.js
 
-const app = express();
+// Middleware for parsing request bodies
+app.use(express.json());
+
+// Use Routes
+app.use('/api/v1/auth', router); // Make sure `authRoutes` is not undefined
+app.use('/api/v1/User', User); // Ensure this is properly imported and defined
 
 // CORS configuration
 app.use(cors({
@@ -80,99 +86,105 @@ app.post('/login-user', async (req, res) => {
 });
 
 // User Data Endpoint (Protected)
-app.post('/userData', authMiddleware, async (req, res) => {
-  const { email } = req.user;
+// app.post('/userData', authMiddleware, async (req, res) => {
+//   const { email } = req.user;
+//   const { token } = req.body;
+//   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-  try {
-    const data = await User.findOne({ email });
-    res.status(200).json({ status: 'ok', data: data });
-  } catch (error) {
-    res.status(401).json({ status: 'error', error: 'Token expired or invalid' });
-  }
-});
+//   try {
+//     const data = await User.findOne({ email });
+//     res.status(200).json({ status: 'ok', data: data });
+//   } catch (error) {
+//     res.status(401).json({ status: 'error', error: 'Token expired or invalid' });
+//   }
+// });
 
-// Forgot Password Endpoint
-app.post('/forgot-password', async (req, res) => {
-  const { email } = req.body;
+// // Forgot Password Endpoint
+//  app.post('/forgot-password', async (req, res) => {
+//   const { email } = req.body;
+//   try {
+//     const oldUser = await User.findOne({ email });
+//     // console.log(oldUser)
+//     // console.log(oldUser._id)
+//     // console.log(oldUser.email)
+//     if (!oldUser) {
+//       return res.json({ status: "User Not Exists!!" });
+//     }
+//     const id = oldUser._id;
+//     const token = jwt.sign(
+//       { id: oldUser._id, email: oldUser.email, userType: oldUser.userType },
+//       process.env.JWT_SECRET,
+//       { expiresIn: '1h' }
+//   );
+//     // console.log(token);
+//     const link = `http://localhost:5000/reset-password/${id}/${token}`;
+//     console.log(link);
+// //     const transporter = nodemailer.createTransport({
+// //       service: 'gmail',
+// //       auth: {
+// //         user: process.env.EMAIL_USERNAME,
+// //         pass: process.env.EMAIL_PASSWORD,
+// //       },
+// //     });
+// //
+// //     const mailOptions = {
+// //       from: process.env.EMAIL_USERNAME,
+// //       to: email,
+// //       subject: 'Password Reset',
+// //       text: link,
+// //     };
+// //
+//     // transporter.sendMail(mailOptions, function (error, info) {
+//     //   if (error) {
+//     //     console.log(error);
+//     //   } else {
+//     //     console.log("Email sent: " + info.response);
+//     //   }
+//     // });
+//   } catch (error) {
+//     res.status(500).json({ status: 'error', error: error.message });
+//   }
+//  });
 
-  try {
-    const oldUser = await User.findOne({ email });
-    if (!oldUser) {
-      return res.status(404).json({ status: 'error', error: 'User not found' });
-    }
+// // // Reset Password Endpoints
+// app.get('/reset-password/:id/:token', async (req, res) => {
+//   const { id, token } = req.params;
+//   console.log(req.params);
+//     res.send("working");
+//     const oldUser = await User.findOne({ _id: id });
+//     // if (!oldUser) {
+//     //   return res.json({ status: "User Not Exists!!" });
+//     // }
+//     // try {
+//     //   const verify = jwt.verify(token, process.env.JWT_SECRET);
+//     //   res.render("index", { email: verify.email, status: "Not Verified" });
+//     // } catch (error) {
+//     //   console.log(error);
+//     //   res.send("Not Verified");
+//     // }
+//   });
 
-    const secret = process.env.JWT_SECRET + oldUser.password;
-    const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, { expiresIn: '5m' });
-    const link = `http://localhost:5000/reset-password/${oldUser._id}/${token}`;
+// app.post('/reset-password/:id/:token', async (req, res) => {
+//   const { id, token } = req.params;
+//   const { password } = req.body;
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
+//   try {
+//     const oldUser = await User.findOne({ _id: id });
+//     if (!oldUser) {
+//       return res.status(404).json({ status: 'error', error: 'User not found' });
+//     }
 
-    const mailOptions = {
-      from: process.env.EMAIL_USERNAME,
-      to: email,
-      subject: 'Password Reset',
-      text: link,
-    };
+//     const secret = process.env.JWT_SECRET + oldUser.password;
+//     jwt.verify(token, secret);
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log(error);
-        return res.status(500).json({ status: 'error', error: 'Error sending email' });
-      } else {
-        console.log('Email sent: ' + info.response);
-        res.status(200).json({ status: 'ok' });
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ status: 'error', error: error.message });
-  }
-});
+//     const encryptedPassword = await bcrypt.hash(password, 10);
+//     await User.updateOne({ _id: id }, { $set: { password: encryptedPassword } });
 
-// Reset Password Endpoints
-app.get('/reset-password/:id/:token', async (req, res) => {
-  const { id, token } = req.params;
-
-  try {
-    const oldUser = await User.findOne({ _id: id });
-    if (!oldUser) {
-      return res.status(404).json({ status: 'error', error: 'User not found' });
-    }
-
-    const secret = process.env.JWT_SECRET + oldUser.password;
-    jwt.verify(token, secret);
-    res.status(200).json({ status: 'ok', email: oldUser.email });
-  } catch (error) {
-    res.status(400).json({ status: 'error', error: 'Invalid or expired token' });
-  }
-});
-
-app.post('/reset-password/:id/:token', async (req, res) => {
-  const { id, token } = req.params;
-  const { password } = req.body;
-
-  try {
-    const oldUser = await User.findOne({ _id: id });
-    if (!oldUser) {
-      return res.status(404).json({ status: 'error', error: 'User not found' });
-    }
-
-    const secret = process.env.JWT_SECRET + oldUser.password;
-    jwt.verify(token, secret);
-
-    const encryptedPassword = await bcrypt.hash(password, 10);
-    await User.updateOne({ _id: id }, { $set: { password: encryptedPassword } });
-
-    res.status(200).json({ status: 'ok' });
-  } catch (error) {
-    res.status(400).json({ status: 'error', error: 'Something went wrong' });
-  }
-});
+//     res.status(200).json({ status: 'ok' });
+//   } catch (error) {
+//     res.status(400).json({ status: 'error', error: 'Something went wrong' });
+//   }
+// });
 
 // Get All Users with Search (Protected)
 app.get('/getAllUser', authMiddleware, async (req, res) => {

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset</title>
+    <script>
+        // Get the status from the server-side template variable
+        var status = "<%= status %>";
+        console.log(status);
+
+        // Check if the status is "Verified" and then redirect
+        if (status === "Verified") {
+            if (confirm("Do you want to login?")) {
+                window.location.href = "http://localhost:3000/";
+            }
+        }
+
+        // Function to validate if passwords match
+        function validatePasswords() {
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirm-password").value;
+            
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return false;  // Prevent form submission
+            }
+            return true;  // Allow form submission if passwords match
+        }
+
+        // Function to toggle password visibility
+        function togglePasswordVisibility() {
+            var passwordField = document.getElementById("password");
+            var confirmPasswordField = document.getElementById("confirm-password");
+            var showPasswordCheckbox = document.getElementById("show-password");
+
+            if (showPasswordCheckbox.checked) {
+                passwordField.type = "text";
+                confirmPasswordField.type = "text";
+            } else {
+                passwordField.type = "password";
+                confirmPasswordField.type = "password";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Email: <%= email %></h1>
+    <form action="" method="post" onsubmit="return validatePasswords()">
+        <input type="password" name="password" id="password" placeholder="password" required><br/>
+        <input type="password" name="confirm-password" id="confirm-password" placeholder="confirm-password" required><br/>
+        
+        <!-- Show/Hide password checkbox -->
+        <input type="checkbox" id="show-password" onclick="togglePasswordVisibility()"> Show Password<br/>
+
+        <input type="submit" name="submit" value="Reset Password">
+    </form>
+</body>
+</html>

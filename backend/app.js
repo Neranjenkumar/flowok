@@ -52,6 +52,11 @@ const app = express();
 
 const PORT = process.env.PORT || 5000;
 
+app.use(express.urlencoded({ extended: false }));
+
+app.set('view engine', 'ejs');
+app.set('views', './views'); 
+
 app.use(express.json());
 app.use(cors());
 // Register the user route for paginated users

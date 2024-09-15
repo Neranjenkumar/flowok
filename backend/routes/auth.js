@@ -74,69 +74,135 @@ router.post('/login-user', async (req, res) => {
     }
 });
 
-// Forgot Password Endpoint
-router.post('/forgot-password', async (req, res) => {
+
+// router.post('/userData', async (req, res) => {
+//   const { email } = req.User;
+//   const { token } = req.body;
+//   const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//   const data = await User.findOne({ email });
+//   console.log(data)
+
+//   try {
+//     const data = await User.findOne({ email });
+//     res.status(200).json({ status: 'ok', data: data });
+//   } catch (error) {
+//     res.status(401).json({ status: 'error', error: 'Token expired or invalid' });
+//   }
+// });
+
+router.post("/forgot-password", async (req, res) => {
     const { email } = req.body;
-
-    if (!email) {
-        return res.status(400).json({ error: 'Email is required' });
-    }
-
     try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+      const oldUser = await User.findOne({ email });
+      // console.log(oldUser)
+      // console.log(oldUser._id)
+      // console.log(oldUser.email)
+      if (!oldUser) {
+        return res.json({ status: "User Not Exists!!" });
+      }
+      const id = oldUser._id;
+      const token = jwt.sign(
+        { id: oldUser._id, email: oldUser.email, userType: oldUser.userType },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+    );
+      // console.log(token);
+      const link = `http://localhost:5000/api/v1/auth/reset-password/${id}/${token}`;
+      console.log(link);
+    const transporter = nodemailer.createTransport({
+      // host: 'smtp-relay.brevo.com',
+      // port:587,
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    const mailOptions = {
+      from: `"Project Cash Flow" <${process.env.EMAIL_USERNAME}>`,  // Display name and email
+      to: email,
+      subject: 'Password Reset Request - Action Required',
+      html: `
+        <p>Dear ${oldUser.fname},</p>
+        
+        <p>We received a request to reset your password for your account. If you made this request, please click the button below to reset your password. If you didn't make this request, you can safely ignore this email.</p>
+        
+        <p style="text-align: center;">
+          <a href="${link}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Your Password</a>
+        </p>
+        
+        <p>If you are having trouble with the button above, copy and paste the following link into your web browser:</p>
+        <p><a href="${link}">${link}</a></p>
+        
+        <p>Thank you,<br/>The Your Company Team</p>
+        
+        <hr/>
+        <p style="font-size: 12px; color: gray;">If you did not request a password reset, please ignore this email or contact our support team for assistance.</p>
+      `,
+    };
+    
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          res.send({ status: 'ok'});
+          console.log("Email sent: " + info.response);
         }
-
-        const resetToken = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '15m' });
-        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-
-        const transporter = nodemailer.createTransport({
-            service: 'Gmail',
-            auth: {
-                user: process.env.EMAIL_USERNAME,
-                pass: process.env.EMAIL_PASSWORD,
-            },
-        });
-
-        await transporter.sendMail({
-            from: process.env.EMAIL_USERNAME,
-            to: user.email,
-            subject: 'Password Reset Request',
-            html: `<p>To reset your password, click on the link below:</p><a href="${resetLink}">Reset Password</a>`,
-        });
-
-        res.status(200).json({ status: 'ok', message: 'Password reset link sent to your email' });
-    } catch (error) {
-        res.status(500).json({ status: 'error', error: error.message });
+      });
+    } catch (error) {}
+  });
+  
+router.get("/reset-password/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  console.log(req.params);
+    const oldUser = await User.findOne({ _id: id });
+    // console.log(oldUser);
+    // console.log(oldUser._id);
+    // console.log(oldUser.email);
+    // console.log(token);
+    if (!oldUser) {
+      return res.json({ status: "User Not Exists!!" });
     }
-});
-
-// Reset Password Endpoint
-router.post('/reset-password', async (req, res) => {
-    const { token, newPassword } = req.body;
-
-    if (!token || !newPassword) {
-        return res.status(400).json({ error: 'Token and new password are required' });
-    }
-
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        const user = await User.findOne({ email: decoded.email });
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        const encryptedPassword = await bcrypt.hash(newPassword, 10);
-        user.password = encryptedPassword;
-        await user.save();
-
-        res.status(200).json({ status: 'ok', message: 'Password reset successful' });
+      const verify = jwt.verify(token, process.env.JWT_SECRET);
+      res.render("index", { email: verify.email, status:"Not Verified" });
     } catch (error) {
-        res.status(500).json({ status: 'error', error: error.message });
+      console.log(error);
+      //res.send("Not Verified");
+     }
+  });
+
+
+router.post("/reset-password/:id/:token", async (req, res) => {
+    const { id, token } = req.params;
+    const { password } = req.body;
+  
+    const oldUser = await User.findOne({ _id: id });
+    if (!oldUser) {
+      return res.json({ status: "User Not Exists!!" });
     }
-});
+    try {
+      const verify = jwt.verify(token, process.env.JWT_SECRET);
+      const encryptedPassword = await bcrypt.hash(password, 10);
+      await User.updateOne(
+        {
+          _id: id,
+        },
+        {
+          $set: {
+            password: encryptedPassword,
+          },
+        }
+      );
+      //res.json({ status: "password updatd" });
+      res.render("index", { email: verify.email, status: "Verified" });
+    } catch (error) {
+      console.log(error);
+      res.json({ status: "Something Went Wrong" });
+    }
+  });
 
 // Income and Expense Routes (Protected)
 router.post('/add-income', authMiddleware, async (req, res) => {
@@ -213,4 +279,5 @@ router.get('/email/:email', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 module.exports = router;
