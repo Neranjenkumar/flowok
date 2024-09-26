@@ -1,5 +1,6 @@
 // controllers/income.js
 const Income = require('../models/IncomeModel'); // Ensure this path is correct
+const User = require('../models/User');
 
 // Add Income
 // controllers/income.js
@@ -34,15 +35,50 @@ exports.addIncome = async (req, res) => {
 };
 
 
+// // Get Incomes
+// exports.getIncomes = async (req, res) => {
+//     try {
+//         // Fetch incomes for the authenticated user
+//         const incomes = await Income.find({ userId: req.user.id });
+//         if (!incomes) {
+//             return res.status(404).json({ message: 'No incomes found' });
+//         }
+//         res.status(200).json(incomes);
+//     } catch (error) {
+//         console.error('Error fetching incomes:', error.message);
+//         res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// };
 // Get Incomes
 exports.getIncomes = async (req, res) => {
     try {
-        // Fetch incomes for the authenticated user
-        const incomes = await Income.find({ userId: req.user.id });
-        if (!incomes) {
-            return res.status(404).json({ message: 'No incomes found' });
+        const { email } = req.query;
+
+        // Check if the logged-in user is an admin
+        if (req.user.userType === 'Admin') {
+            if (email) {
+                // Admin wants to fetch a specific user's incomes by email
+                // const user = await User.findOne({ email });
+                const user = await User.findOne({ email: email });
+                console.log(user)
+                if (!user) {
+                    return res.status(404).json({ message: 'User not found' });
+                }
+                // Fetch incomes for the specified user
+                const incomes = await Income.find({ userId: user.id });
+                return res.status(200).json(incomes);
+            } else {
+                // If no email is provided, return an error (Admins must provide an email)
+                return res.status(400).json({ message: 'Email is required for admin queries' });
+            }
+        } else {
+            // If the user is not an admin, fetch their own incomes
+            const incomes = await Income.find({ userId: req.user.id });
+            if (!incomes) {
+                return res.status(404).json({ message: 'No incomes found' });
+            }
+            res.status(200).json(incomes);
         }
-        res.status(200).json(incomes);
     } catch (error) {
         console.error('Error fetching incomes:', error.message);
         res.status(500).json({ message: 'Internal Server Error' });

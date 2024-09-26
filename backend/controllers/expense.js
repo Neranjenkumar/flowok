@@ -1,6 +1,7 @@
 const Expense = require('../models/ExpenseModel');
 const multer = require('multer');
 const path = require('path');
+const User = require('../models/User'); // Assuming this is your User model
 
 // Set up multer for file storage
 const storage = multer.diskStorage({
@@ -76,16 +77,51 @@ exports.addExpense = (req, res) => {
   });
 };
 
-// Get Expenses
+// // Get Expenses
+// exports.getExpenses = async (req, res) => {
+//   try {
+//     const expenses = await Expense.find({ userId: req.user.id }).sort({ createdAt: -1 });
+//     res.status(200).json(expenses);
+//   } catch (error) {
+//     console.error('Error fetching expenses:', error.message);
+//     res.status(500).json({ message: 'Server Error', error: error.message });
+//   }
+// };
 exports.getExpenses = async (req, res) => {
   try {
-    const expenses = await Expense.find({ userId: req.user.id }).sort({ createdAt: -1 });
-    res.status(200).json(expenses);
+      const { email } = req.query;
+
+      // Check if the logged-in user is an admin
+      if (req.user.userType === 'Admin') {
+          if (email) {
+              // Admin wants to fetch a specific user's expenses by email
+              // const users = await User.findOne({ email });
+              const user = await User.findOne({ email: email });
+              
+              if (!user) {
+                  return res.status(404).json({ message: 'User not found' });
+              }
+              // Fetch expenses for the specified user
+              const expenses = await Expense.find({ userId: user.id });
+              return res.status(200).json(expenses);
+          } else {
+              // If no email is provided, return an error (Admins must provide an email)
+              return res.status(400).json({ message: 'Email is required for admin queries' });
+          }
+      } else {
+          // If the user is not an admin, fetch their own expenses
+          const expenses = await Expense.find({ userId: req.user.id});
+          if (!expenses || expenses.length === 0) {
+              return res.status(404).json({ message: 'No expenses found' });
+          }
+          res.status(200).json(expenses);
+      }
   } catch (error) {
-    console.error('Error fetching expenses:', error.message);
-    res.status(500).json({ message: 'Server Error', error: error.message });
+      console.error('Error fetching expenses:', error.message);
+      res.status(500).json({ message: 'Internal Server Error' });
   }
 };
+
 
 // Delete Expense
 exports.deleteExpense = async (req, res) => {

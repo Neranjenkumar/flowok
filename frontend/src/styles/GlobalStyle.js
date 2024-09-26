@@ -1,37 +1,30 @@
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyles = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
   * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+    @apply m-0 p-0 box-border;
   }
 
   body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f5f7fa;
-    color: #333;
-    line-height: 1.6;
-    overflow-x: hidden;
+    @apply font-['Poppins',sans-serif] bg-gray-50 text-gray-800 leading-relaxed overflow-x-hidden;
   }
 
-  @media (max-width: 768px) {
+  @screen sm {
     body {
-      font-size: 14px;
+      @apply text-sm;
     }
   }
 
-  @media (min-width: 769px) {
+  @screen md {
     body {
-      font-size: 16px;
+      @apply text-base;
     }
   }
 
   .container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+    @apply w-full max-w-7xl mx-auto px-4;
   }
 `;
 

@@ -161,7 +161,7 @@ function Expenses() {
                 <h1>Expenses</h1>
                 <h2 className="total-expense">Total Expense: <span>${totalExpenses()}</span></h2>
                 <div className="expense-content">
-                    <div className="form-container">
+                    <div className="form-container flex justify-center">
                         <ExpenseForm addExpense={addExpense} />
                     </div>
                     <div className="expenses">
@@ -187,72 +187,80 @@ function Expenses() {
                             <p>No expenses to display.</p>
                         )}
                     </div>
-                </div>
+                    </div>
             </InnerLayout>
         </ExpenseStyled>
     );
+
 }
 
 const ExpenseStyled = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+
+  &.nav-open {
+    margin-left: 250px;
+  }
+
+  .total-expense {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #FCF6F9;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
+    border-radius: 20px;
+    padding: 1rem;
+    margin: 1rem 0;
+    font-size: 2rem;
+    gap: .5rem;
+    span {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--color-red);
+    }
+  }
+
+  .expense-content {
     display: flex;
     flex-direction: column;
-    overflow: auto;
-    transition: margin-left 0.3s ease;
+    align-items: center;
+    gap: 2rem;
+    flex-grow: 1;
+  }
 
-    &.nav-open {
-        margin-left: 250px;
-    }
+  .form-container {
+    width: 100%;
+    max-width: 600px;
+  }
 
+  .expenses {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.5rem;
     .total-expense {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #FCF6F9;
-        border: 2px solid #FFFFFF;
-        box-shadow: 0px 1px 15px rgba(0, 0, 0, 0.06);
-        border-radius: 20px;
-        padding: 1rem;
-        margin: 1rem 0;
+      font-size: 1.5rem;
+      span {
         font-size: 2rem;
-        gap: .5rem;
-        span {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--color-red);
-        }
+      }
     }
-    
-    .expense-content {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-        .expenses {
-            flex: 1;
-        }
-    }
+  }
 
-    @media (max-width: 768px) {
-        .expense-content {
-            flex-direction: column;
-        }
-
-        .total-expense {
-            font-size: 1.5rem;
-            span {
-                font-size: 2rem;
-            }
-        }
+  @media (max-width: 480px) {
+    .total-expense {
+      font-size: 1.2rem;
+      padding: 0.8rem;
+      span {
+        font-size: 1.8rem;
+      }
     }
-
-    @media (max-width: 480px) {
-        .total-expense {
-            font-size: 1.2rem;
-            padding: 0.8rem;
-            span {
-                font-size: 1.8rem;
-            }
-        }
-    }
+  }
 `;
 
 export default Expenses;

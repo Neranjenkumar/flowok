@@ -1,184 +1,57 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import * as FaIcons from 'react-icons/fa';
-import * as AiIcons from 'react-icons/ai';
-import styled from 'styled-components';
+import { signout } from '../../utils/Icons';
 
-function Navigation({ token, setSidebarOpen }) {
-  const [sidebar, setSidebar] = useState(false);
+function Navigation({ token, setSidebarOpen}) {
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const showSidebar = () => {
-    setSidebar(!sidebar);
-    setSidebarOpen(!sidebar);
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+    setSidebarOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    // Clear the token and navigate to login
-    window.localStorage.removeItem('token');
+  const handleSignOut = () => {
+    // Clear the token from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('userType');
+    // Redirect to the login page
     navigate('/login');
   };
 
-  const sidebarData = [
-    {
-      title: 'Dashboard',
-      path: '/dashboard',
-      icon: <AiIcons.AiFillHome />,
-      cName: 'nav-text',
-    },
-    {
-      title: 'Income',
-      path: '/income',
-      icon: <FaIcons.FaCartPlus />,
-      cName: 'nav-text',
-    },
-    {
-      title: 'Expenses',
-      path: '/expenses',
-      icon: <AiIcons.AiFillCreditCard />,
-      cName: 'nav-text',
-    },
-    {
-      title: 'Logout',
-      path: '/login',
-      icon: <AiIcons.AiOutlineLogout />,
-      cName: 'nav-text',
-      onClick: handleLogout, // Set up the logout action
-    },
-  ];
-
-  // Conditionally render Navigation based on current path
+// Conditionally render Navigation based on current path
+  const location = useLocation();
   if (location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/admin-dashboard' || location.pathname === '/forgot-password' ) {
     return null;
   }
 
   return (
-    <NavStyled>
-      <div className="navbar">
-        <Link to="#" className="menu-bars">
-          <FaIcons.FaBars onClick={showSidebar} />
-        </Link>
+    <nav className="bg-indigo-900 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center">
+            <button onClick={toggleSidebar} className="text-white focus:outline-none">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
-      <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
-        <ul className="nav-menu-items" onClick={showSidebar}>
-          <li className="navbar-toggle">
-            <Link to="#" className="menu-bars">
-              <AiIcons.AiOutlineClose />
-            </Link>
-          </li>
-          {sidebarData.map((item, index) => (
-            <li key={index} className={item.cName}>
-              <Link to={item.path} onClick={item.onClick || showSidebar}>
-                {item.icon}
-                <span>{item.title}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </NavStyled>
+      <div className={`fixed inset-y-0 left-0 w-64 bg-indigo-800 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out overflow-y-auto`}>
+      <div className={`fixed inset-y-0 left-0 w-64 bg-indigo-800 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out`}>
+        <div className="p-6">
+          <Link to="/dashboard" onClick={toggleSidebar} className="block py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700">Dashboard</Link>
+          <Link to="/income" onClick={toggleSidebar} className="block py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700">Income</Link>
+          <Link to="/expenses" onClick={toggleSidebar} className="block py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700">Expenses</Link>
+          <button onClick={handleSignOut} className="w-full text-left py-2.5 px-4 rounded transition duration-200 hover:bg-indigo-700">
+            {signout} Sign Out
+          </button>
+        </div>
+        </div>
+        </div>
+    </nav>
   );
 }
-
-
-const NavStyled = styled.div`
-  .navbar {
-    background-color: #060b26;
-    height: 80px;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-    top: 0;
-    left: 0;
-  }
-
-  .menu-bars {
-    margin-left: 2rem;
-    font-size: 2rem;
-    background: none;
-  }
-
-  .nav-menu {
-    background-color: #060b26;
-    width: 250px;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    position: fixed;
-    top: 80px;
-    left: -100%;
-    transition: 350ms;
-    z-index: 1001;
-  }
-
-  .nav-menu.active {
-    left: 0;
-    transition: 350ms;
-  }
-
-  .nav-text {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    padding: 8px 0px 8px 16px;
-    list-style: none;
-    height: 60px;
-  }
-
-  .nav-text a {
-    text-decoration: none;
-    color: #f5f5f5;
-    font-size: 18px;
-    width: 95%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    border-radius: 4px;
-  }
-
-  .nav-text a:hover {
-    background-color: #1a83ff;
-  }
-
-  .nav-menu-items {
-    width: 100%;
-  }
-
-  .navbar-toggle {
-    background-color: #060b26;
-    width: 100%;
-    height: 80px;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-  }
-
-  span {
-    margin-left: 16px;
-  }
-
-  @media (max-width: 768px) {
-    .nav-menu {
-      width: 100%;
-      height: auto;
-      top: 80px;
-    }
-
-    .nav-text {
-      justify-content: center;
-      font-size: 20px;
-    }
-
-    .nav-text a {
-      text-align: center;
-      padding: 20px;
-    }
-  }
-`;
 
 export default Navigation;

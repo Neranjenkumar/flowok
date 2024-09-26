@@ -27,6 +27,13 @@ ChartJs.register(
 
 function Chart() {
     const { incomes, expenses } = useGlobalContext();
+    const [chartWidth, setChartWidth] = React.useState(window.innerWidth);
+
+    React.useEffect(() => {
+        const handleResize = () => setChartWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const data = {
         labels: incomes.map((inc) => dateFormat(inc.date)),
@@ -50,9 +57,54 @@ function Chart() {
         ]
     };
 
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                ticks: {
+                    maxRotation: 90,
+                    minRotation: 90,
+                    font: {
+                        size: chartWidth < 768 ? 8 : 12
+                    }
+                }
+            },
+            y: {
+                ticks: {
+                    font: {
+                        size: chartWidth < 768 ? 8 : 12
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    font: {
+                        size: chartWidth < 768 ? 10 : 14
+                    }
+                }
+            },
+            title: {
+                display: true,
+                text: 'Income vs Expenses',
+                font: {
+                    size: chartWidth < 768 ? 14 : 18
+                }
+            }
+        },
+        elements: {
+            point: {
+                radius: chartWidth < 768 ? 2 : 4
+            }
+        }
+    };
+
     return (
         <ChartStyled>
-            <Line data={data} />
+            <Line data={data} options={options} />
         </ChartStyled>
     );
 }
@@ -64,6 +116,12 @@ const ChartStyled = styled.div`
     padding: 1rem;
     border-radius: 20px;
     height: 100%;
+    min-height: 300px;
+
+    @media (max-width: 768px) {
+        min-height: 200px;
+        padding: 0.5rem;
+    }
 `;
 
 export default Chart;

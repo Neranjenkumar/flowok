@@ -1,150 +1,82 @@
-// import React, { useEffect, useCallback } from 'react';
-// import { useGlobalContext } from '../../context/globalContext';
-// import History from '../../History/History';
-// import { InnerLayout } from '../../styles/Layouts';
-// import { dollar } from '../../utils/Icons';
-// import Chart from '../Chart/Chart';
-// import './Dashboard.css';
-
-// function Dashboard() {
-//     const { totalExpenses, incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext();
-    
-//     useEffect(() => {
-//         getIncomes(); // Ensure incomes are fetched when component loads
-//         getExpenses(); // Ensure expenses are fetched when component loads
-//     }, [getIncomes, getExpenses]); // Use dependency array to avoid multiple calls
-
-//     const minIncome = incomes.length > 0 ? Math.min(...incomes.map(item => item.amount)) : 0;
-//     const maxIncome = incomes.length > 0 ? Math.max(...incomes.map(item => item.amount)) : 0;
-//     const minExpense = expenses.length > 0 ? Math.min(...expenses.map(item => item.amount)) : 0;
-//     const maxExpense = expenses.length > 0 ? Math.max(...expenses.map(item => item.amount)) : 0;
-
-//     return (
-//         <div className="dashboard">
-//             <InnerLayout>
-//                 <h1>All Transactions</h1>
-//                 <div className="stats-con">
-//                     <div className="chart-con">
-//                         <Chart />
-//                         <div className="amount-con">
-//                             <div className="income">
-//                                 <h2>Total Income</h2>
-//                                 <p>
-//                                     {dollar} {totalIncome()}
-//                                 </p>
-//                             </div>
-//                             <div className="expense">
-//                                 <h2>Total Expense</h2>
-//                                 <p>
-//                                     {dollar} {totalExpenses()}
-//                                 </p>
-//                             </div>
-//                             <div className="balance">
-//                                 <h2>Total Balance</h2>
-//                                 <p>
-//                                     {dollar} {totalBalance()}
-//                                 </p>
-//                             </div>
-//                         </div>
-//                     </div>
-//                     <div className="history-con">
-//                         <History />
-//                         <h2 className="salary-title">Min <span>Salary</span>Max</h2>
-//                         <div className="salary-item">
-//                             <p>${minIncome}</p>
-//                             <p>${maxIncome}</p>
-//                         </div>
-//                         <h2 className="salary-title">Min <span>Expense</span>Max</h2>
-//                         <div className="salary-item">
-//                             <p>${minExpense}</p>
-//                             <p>${maxExpense}</p>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </InnerLayout>
-//         </div>
-//     );
-// }
-
-// export default Dashboard;
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useGlobalContext } from '../../context/globalContext';
+import styled from 'styled-components';
 import History from '../../History/History';
-import { InnerLayout } from '../../styles/Layouts';
-import { dollar } from '../../utils/Icons';
+import {  rupee } from '../../utils/Icons';
 import Chart from '../Chart/Chart';
 import './Dashboard.css';
 
-function Dashboard({ dataFetched }) {
-    const { totalExpenses, incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext();
-    const [loading, setLoading] = useState(true);  // Introduce loading state
+function Dashboard() {
+  const { totalExpenses, incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext();
+  
+  useEffect(() => {
+    getIncomes();
+    getExpenses();
+  }, [getIncomes, getExpenses]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (dataFetched) {
-                await getIncomes();  // Fetch incomes
-                await getExpenses(); // Fetch expenses
-            }
-            setLoading(false);  // Set loading to false after data is fetched
-        };
-        fetchData();
-    }, [dataFetched, getIncomes, getExpenses]);
+  const minIncome = incomes.length > 0 ? Math.min(...incomes.map(item => item.amount)) : 0;
+  const maxIncome = incomes.length > 0 ? Math.max(...incomes.map(item => item.amount)) : 0;
+  const minExpense = expenses.length > 0 ? Math.min(...expenses.map(item => item.amount)) : 0;
+  const maxExpense = expenses.length > 0 ? Math.max(...expenses.map(item => item.amount)) : 0;
 
-    if (loading) {
-        return <div>Loading...</div>;  // Show loading state
-    }
-
-    const minIncome = incomes && incomes.length > 0 ? Math.min(...incomes.map(item => item.amount)) : 0;
-    const maxIncome = incomes && incomes.length > 0 ? Math.max(...incomes.map(item => item.amount)) : 0;
-    const minExpense = expenses && expenses.length > 0 ? Math.min(...expenses.map(item => item.amount)) : 0;
-    const maxExpense = expenses && expenses.length > 0 ? Math.max(...expenses.map(item => item.amount)) : 0;
-
-    return (
-        <div className="dashboard">
-            <InnerLayout>
-                <h1>All Transactions</h1>
-                <div className="stats-con">
-                    <div className="chart-con">
-                        <Chart />
-                        <div className="amount-con">
-                            <div className="income">
-                                <h2>Total Income</h2>
-                                <p>
-                                    {dollar} {totalIncome()}
-                                </p>
-                            </div>
-                            <div className="expense">
-                                <h2>Total Expense</h2>
-                                <p>
-                                    {dollar} {totalExpenses()}
-                                </p>
-                            </div>
-                            <div className="balance">
-                                <h2>Total Balance</h2>
-                                <p>
-                                    {dollar} {totalBalance()}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="history-con">
-                        <History />
-                        <h2 className="salary-title">Min <span>Salary</span>Max</h2>
-                        <div className="salary-item">
-                            <p>${minIncome}</p>
-                            <p>${maxIncome}</p>
-                        </div>
-                        <h2 className="salary-title">Min <span>Expense</span>Max</h2>
-                        <div className="salary-item">
-                            <p>${minExpense}</p>
-                            <p>${maxExpense}</p>
-                        </div>
-                    </div>
-                </div>
-            </InnerLayout>
+  
+  return (
+    <DashboardStyled className="min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">All Transactions</h1>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white p-4 rounded-lg shadow">
+            <Chart />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-green-100 p-4 rounded-lg">
+              <h2 className="text-lg font-semibold mb-2">Total Income</h2>
+              <p className="text-2xl font-bold text-green-600">{rupee} {totalIncome()}</p>
+            </div>
+            <div className="bg-red-100 p-4 rounded-lg">
+              <h2 className="text-lg font-semibold mb-2">Total Expense</h2>
+              <p className="text-2xl font-bold text-red-600">{rupee} {totalExpenses()}</p>
+            </div>
+            <div className="bg-blue-100 p-4 rounded-lg">
+              <h2 className="text-lg font-semibold mb-2">Total Balance</h2>
+              <p className="text-2xl font-bold text-blue-600">{rupee} {totalBalance()}</p>
+            </div>
+          </div>
         </div>
-    );
+        <div className="space-y-6">
+          <div className="bg-white p-4 rounded-lg shadow">
+            <History />
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h2 className="text-lg font-semibold mb-2">Income Range</h2>
+            <div className="flex justify-between bg-gray-100 p-3 rounded">
+              <span>{rupee}{minIncome}</span>
+              <span>{rupee}{maxIncome}</span>
+            </div>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow">
+            <h2 className="text-lg font-semibold mb-2">Expense Range</h2>
+            <div className="flex justify-between bg-gray-100 p-3 rounded">
+              <span>{rupee}{minExpense}</span>
+              <span>{rupee}{maxExpense}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </DashboardStyled>
+  );
 }
+
+  const DashboardStyled = styled.div`
+  padding: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+  }
+`;
+
 
 export default Dashboard;
 

@@ -74,6 +74,11 @@ readdirSync('./routes').forEach((route) => {
 });
  // This adds your route at /api/v1/get-admin-key
 
+//  // Around line 68-72
+// routes.forEach((route) => {
+//     app.use(route);
+//   });
+
 const startServer = async () => {
     try {
         await connectDB();

@@ -1,32 +1,13 @@
 import styled from 'styled-components';
 
-export const MainLayout = styled.div`
-  padding: 2rem;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  transition: margin-left 0.3s ease;
-
-  @media (min-width: 768px) {
-    flex-direction: row;
-  }
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-    gap: 1rem;
-  }
-
+export const MainLayout = styled.div.attrs({
+  className: 'p-4 md:p-8 h-full flex flex-col md:flex-row gap-4 md:gap-8 transition-all duration-300'
+})`
   &.nav-open {
-    margin-left: 250px; /* Adjust this value based on your navbar width */
+    @apply ml-64;
   }
 `;
 
-export const InnerLayout = styled.div`
-  padding: 2rem 1.5rem;
-  width: 100%;
-
-  @media (max-width: 768px) {
-    padding: 1rem 0.75rem;
-  }
-`;
+export const InnerLayout = styled.div.attrs({
+  className: 'p-4 md:p-6 w-full'
+})``;
