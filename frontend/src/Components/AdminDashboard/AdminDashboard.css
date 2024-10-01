@@ -1,0 +1,107 @@
+.admin-dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .admin-dashboard h1 {
+    margin-bottom: 20px;
+  }
+
+  .admin-dashboard input {
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .admin-dashboard button {
+    padding: 10px 20px;
+    margin-bottom: 20px;
+  }
+
+  .stats-con {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .chart-con, .history-con {
+    margin: 10px 0;
+  }
+
+  .amount-con {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .amount-con div {
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  .salary-title {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .salary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+
+  / Media Queries for larger screens */
+  @media (min-width: 768px) {
+    .stats-con {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .amount-con {
+      flex-direction: row;
+      justify-content: space-around;
+    }
+
+    .chart-con, .history-con {
+      flex: 1;
+      margin: 10px;
+    }
+  }
+
+  .report-con {
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 20px;
+  }
+
+  .report-con table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+
+  .report-con th, .report-con td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+
+  .report-con th {
+    background-color: #f2f2f2;
+  }
+
+  .report-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+  }
+
+  .report-buttons button {
+    padding: 10px 20px;
+    margin-right: 10px;
+  }

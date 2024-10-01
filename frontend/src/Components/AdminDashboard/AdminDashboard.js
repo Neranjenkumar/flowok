@@ -3,6 +3,7 @@ import axios from 'axios';
 import { dollar } from '../../utils/Icons'; // Ensure this path is correct
 import Chart from '../Chart/Chart'; // Adjust this import according to your project structure
 import History from '../../History/History';
+import './AdminDashboard.css'; // Import the CSS file
 
 function AdminDashboard({ token }) {
   const [email, setEmail] = useState(''); // Email input from the admin
@@ -30,7 +31,7 @@ function AdminDashboard({ token }) {
       });
 
       console.log('Income API Response:', incomeResponse.data); // Debug the response
-      setIncomes(incomeResponse.data); // Set incomes data
+      setIncomes(incomeResponse.data.map(income => ({ ...income, type: 'income' }))); // Set incomes data with type
 
       // Fetch expenses for the specific user
       const expenseResponse = await axios.get(`http://localhost:5000/api/v1/expense/get-expenses?email=${encodedEmail}`, {
@@ -38,7 +39,7 @@ function AdminDashboard({ token }) {
       });
 
       console.log('Expense API Response:', expenseResponse.data); // Debug the response
-      setExpenses(expenseResponse.data); // Set expenses data
+      setExpenses(expenseResponse.data.map(expense => ({ ...expense, type: 'expense' }))); // Set expenses data with type
 
       setError(''); // Clear previous errors if any
     } catch (err) {
@@ -49,26 +50,20 @@ function AdminDashboard({ token }) {
       setExpenses([]);
     }
   };
-  // Check for any issues with the response data
-  console.log('Incomes Array:', incomes);
-  
 
   // Calculate totals for income, expenses, and balance
   const totalIncome = () => {
     const total = incomes.reduce((acc, income) => acc + (income.amount || 0), 0);
-  
     return total;
   };
 
   const totalExpenses = () => {
     const total = expenses.reduce((acc, expense) => acc + (expense.amount || 0), 0);
- 
     return total;
   };
 
   const totalBalance = () => {
     const balance = totalIncome() - totalExpenses();
-
     return balance;
   };
 
@@ -78,11 +73,27 @@ function AdminDashboard({ token }) {
   const minExpense = expenses.length > 0 ? Math.min(...expenses.map(item => item.amount)) : 0;
   const maxExpense = expenses.length > 0 ? Math.max(...expenses.map(item => item.amount)) : 0;
 
-  // console.log('Min Income:', minIncome, 'Max Income:', maxIncome); // Debugging logs
-  // console.log('Min Expense:', minExpense, 'Max Expense:', maxExpense);
+  // Combine and sort incomes and expenses by date
+  const combinedData = [...incomes, ...expenses].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  // Print or download the report
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleDownload = () => {
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + combinedData.map(e => `${e.title},${e.category},${e.type === 'income' ? e.amount : ''},${e.type === 'expense' ? e.amount : ''},${e.date}`).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "report.csv");
+    document.body.appendChild(link);
+    link.click();
+  };
 
   return (
-    <div>
+    <div className="admin-dashboard">
       <h1>Admin Dashboard</h1>
       <input
         type="email"
@@ -105,7 +116,7 @@ function AdminDashboard({ token }) {
 
       <div className="stats-con">
         <div className="chart-con">
-          <Chart />
+          <Chart incomes={incomes} expenses={expenses} /> {/* Pass incomes and expenses data to Chart */}
           <div className="amount-con">
             <div className="income">
               <h2>Total Income</h2>
@@ -135,6 +146,36 @@ function AdminDashboard({ token }) {
             <p>${maxExpense}</p>
           </div>
         </div>
+      </div>
+
+      <div className="report-con">
+        <h2>Income and Expense Report</h2>
+        <div className="report-buttons">
+          <button onClick={handlePrint}>Print</button>
+          <button onClick={handleDownload}>Download</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Income</th>
+              <th>Expense</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {combinedData.map((item, index) => (
+              <tr key={index}>
+                <td>{item.title}</td>
+                <td>{item.category}</td>
+                <td>{item.type === 'income' ? item.amount : ''}</td>
+                <td>{item.type === 'expense' ? item.amount : ''}</td>
+                <td>{item.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

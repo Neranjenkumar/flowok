@@ -11,6 +11,7 @@ import Register from './Components/Register/Register';
 import ScrollableContent from './Components/ScrollableContent/ScrollableContent';
 
 
+
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [sidebarOpen, setSidebarOpen] = useState(false);
