@@ -12,10 +12,10 @@ function Navigation({ token, setSidebarOpen}) {
   };
 
   const handleSignOut = () => {
-    // Clear the token from localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('userType');
-    // Redirect to the login page
+    setIsOpen(false);
+    setSidebarOpen(false);
     navigate('/login');
   };
 

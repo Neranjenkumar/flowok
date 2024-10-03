@@ -4,31 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password Reset</title>
-    <script>
-        // Get the status from the server-side template variable
-        var status = "<%= status %>";
-        console.log(status);
-
-        // Check if the status is "Verified" and then redirect
-        if (status === "Verified") {
-            if (confirm("Do you want to login?")) {
-                window.location.href = "http://localhost:3000/";
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #4f46e5;
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input[type="password"] {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            font-size: 1rem;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        #show-password {
+            margin-right: 0.5rem;
+        }
+        button {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4338ca;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem;
+            }
+            h1 {
+                font-size: 1.25rem;
+            }
+            input[type="password"], button {
+                font-size: 0.875rem;
             }
         }
-
-        // Function to validate if passwords match
-        function validatePasswords() {
-            var password = document.getElementById("password").value;
-            var confirmPassword = document.getElementById("confirm-password").value;
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Password Reset</h1>
+        <form action="" method="post" onsubmit="return validatePasswords()">
+            <input type="password" name="password" id="password" placeholder="New Password" required>
+            <input type="password" name="confirm-password" id="confirm-password" placeholder="Confirm Password" required>
             
-            if (password !== confirmPassword) {
-                alert("Passwords do not match!");
-                return false;  // Prevent form submission
-            }
-            return true;  // Allow form submission if passwords match
-        }
+            <div class="checkbox-container">
+                <input type="checkbox" id="show-password" onclick="togglePasswordVisibility()">
+                <label for="show-password">Show Password</label>
+            </div>
 
-        // Function to toggle password visibility
+            <button type="submit">Reset Password</button>
+        </form>
+    </div>
+
+    <script>
         function togglePasswordVisibility() {
             var passwordField = document.getElementById("password");
             var confirmPasswordField = document.getElementById("confirm-password");
@@ -42,18 +105,17 @@
                 confirmPasswordField.type = "password";
             }
         }
-    </script>
-</head>
-<body>
-    <h1>Email: <%= email %></h1>
-    <form action="" method="post" onsubmit="return validatePasswords()">
-        <input type="password" name="password" id="password" placeholder="password" required><br/>
-        <input type="password" name="confirm-password" id="confirm-password" placeholder="confirm-password" required><br/>
-        
-        <!-- Show/Hide password checkbox -->
-        <input type="checkbox" id="show-password" onclick="togglePasswordVisibility()"> Show Password<br/>
 
-        <input type="submit" name="submit" value="Reset Password">
-    </form>
+        function validatePasswords() {
+            var password = document.getElementById("password").value;
+            var confirmPassword = document.getElementById("confirm-password").value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return false;
+            }
+            return true;
+        }
+    </script>
 </body>
 </html>

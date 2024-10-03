@@ -19,6 +19,12 @@ function App() {
   const userType = localStorage.getItem('userType');
 
   useEffect(() => {
+    if (!token) {
+      setSidebarOpen(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
     if (token) {
       localStorage.setItem('token', token);
       setDataFetched(true);
@@ -55,7 +61,7 @@ function App() {
     <Router>
   <div className="flex h-screen overflow-hidden">
     {token && <Navigation token={token} setSidebarOpen={setSidebarOpen} />}
-    <main className={`flex-1 ${sidebarOpen ? 'ml-64' : ''}`}>
+    <main className={`flex-1 transition-margin duration-300 ${sidebarOpen && token ? 'ml-64' : ''}`}>
       <ScrollableContent>
         <ConditionalWrapper>
           <Routes>

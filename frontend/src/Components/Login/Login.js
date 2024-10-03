@@ -90,7 +90,6 @@ const Login = ({ setToken }) => {
           </div>
         </form>
       </div>
-  
   );
 };
 
